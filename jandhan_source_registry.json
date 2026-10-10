@@ -1,0 +1,93 @@
+[
+  {
+    "id": "src-pmc-speech-202526",
+    "publisher": "Pune Municipal Corporation (PMC)",
+    "exact_authority": "Pune Municipal Corporation",
+    "document_title": "PMC Commissioner Budget Statement FY 2025-26",
+    "document_type": "Municipal Commissioner Budget Presentation",
+    "official_url": "https://www.pmc.gov.in/en/budget-overview",
+    "financial_years_covered": "2025-26",
+    "data_categories_supported": ["Budget Estimates (BE)", "Total Municipal Outlay"],
+    "verification_status": "Verified",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Presents proposed annual outlay estimates; post-presentation adjustments by standing committee require separate gazette scrutiny."
+  },
+  {
+    "id": "src-pmc-book-202425",
+    "publisher": "Pune Municipal Corporation (PMC)",
+    "exact_authority": "Pune Municipal Corporation",
+    "document_title": "PMC Budget Book FY 2024-25 & Open Data Reports",
+    "document_type": "Approved Annual Budget Volume",
+    "official_url": "https://opendata.pmc.gov.in/pmc-reports",
+    "financial_years_covered": "2024-25",
+    "data_categories_supported": ["Budget Estimates (BE)", "Departmental Outlays (Under Review)"],
+    "verification_status": "Verified / Sub-heads Under Review",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Baseline total municipal outlay of ₹11,601.00 Cr is verified in Summary Table 1. Seven departmental sub-heads are quarantined in review dataset until printed ward schedule references are verified."
+  },
+  {
+    "id": "src-pmc-accounts-202324",
+    "publisher": "Pune Municipal Corporation (PMC)",
+    "exact_authority": "Pune Municipal Corporation",
+    "document_title": "PMC Audited Annual Accounts FY 2023-24",
+    "document_type": "Audited Annual Expenditure Statement",
+    "official_url": "https://www.pmc.gov.in/en/budget-overview",
+    "financial_years_covered": "2023-24",
+    "data_categories_supported": ["Actual Expenditure", "Total Municipal Outlay"],
+    "verification_status": "Verified",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Covers completed full-year audited actual outlays; reflects final accounts audited after accounts committee review."
+  },
+  {
+    "id": "src-bmc-speech-202526",
+    "publisher": "Brihanmumbai Municipal Corporation (BMC / MCGM)",
+    "exact_authority": "Brihanmumbai Municipal Corporation",
+    "document_title": "Budget Estimates A, B & G 2025-26 - Commissioner Speech",
+    "document_type": "Municipal Commissioner & Administrator Budget Speech",
+    "official_url": "https://www.mcgm.gov.in/irj/go/km/docs/documents/MCGM%20Department%20List/Chief%20Accountant%20%28Finance%29/Budget/Budget%20Estimate%202025-2026/1-%20MC%27s%20Speech/BUDGET%20A,B,G/ENGLISH%20SPEECH.pdf",
+    "financial_years_covered": "2025-26 (BE), 2024-25 (RE), 2024-25 (9-Month Actual)",
+    "data_categories_supported": ["Budget Estimates (BE)", "Revised Estimates (RE)", "Capital Expenditure", "Revenue Expenditure", "Revenue Receipts"],
+    "verification_status": "Verified",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Page 6 confirms total budget size of ₹74,427.41 Cr covers combined municipal outlay across Funds A, B, E, G, and support to T. Progressive capital actuals (upto 31.12.2024) are 9-month cash outlays, not full-year audited figures."
+  },
+  {
+    "id": "src-bmc-fund-e-202526",
+    "publisher": "Brihanmumbai Municipal Corporation (BMC)",
+    "exact_authority": "Brihanmumbai Municipal Corporation",
+    "document_title": "Budget Estimates Fund E (Education) 2025-26 Speech",
+    "document_type": "Dedicated Fund Budget Document",
+    "official_url": "https://data.opencity.in/dataset/aff7a167-5443-4a30-9709-c182e4b38435/resource/3da8f721-667b-4065-9c3a-6f2a58e9d892/download/bmc-budget-e-english-speech.pdf",
+    "financial_years_covered": "2025-26",
+    "data_categories_supported": ["Budget Estimates (BE)", "Primary Education (Fund E)"],
+    "verification_status": "Verified",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Fund E is dedicated solely to civic primary and secondary school education (Fund Code 30)."
+  },
+  {
+    "id": "src-jmc-greater-202223",
+    "publisher": "Greater Jaipur Municipal Corporation (JMC Greater)",
+    "exact_authority": "Greater Jaipur Municipal Corporation",
+    "document_title": "Budget Summary NAGAR NIGAM JAIPUR GREATER 2022-2023",
+    "document_type": "Official Municipal Budget Summary PDF",
+    "official_url": "https://jaipurmc.org/PDF/Budget/Jaipur_Greater_Budget2022-2023.pdf",
+    "financial_years_covered": "2022-23 (Actuals), 2021-22 (Balance Sheet)",
+    "data_categories_supported": ["Revenue Receipts", "Revenue Expenditure", "Capital Expenditure", "Grant Sub-components (Subsumed)"],
+    "verification_status": "Verified",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Amounts printed in Lakhs INR (e.g. 50299 Lacs = ₹502.99 Cr; 52076 Lacs = ₹520.76 Cr; 30084 Lacs = ₹300.84 Cr). Octroi compensation grant of ₹275.00 Cr (27500 Lacs) is already subsumed under total revenue receipts."
+  },
+  {
+    "id": "src-jmc-heritage-202223",
+    "publisher": "Jaipur Heritage Municipal Corporation (JMC Heritage)",
+    "exact_authority": "Jaipur Heritage Municipal Corporation",
+    "document_title": "Jaipur Heritage Annual Financial Statement FY 2022-23",
+    "document_type": "Statutory Annual Financial Statement",
+    "official_url": "https://jaipurmc.org/PDF/Budget/Jaipur_Greater_Budget2022-2023.pdf",
+    "financial_years_covered": "2022-23",
+    "data_categories_supported": ["Deficit Metric (Quarantined)"],
+    "verification_status": "Rejected / Reclassified (Review File)",
+    "last_checked_date": "2026-10-10",
+    "known_limitations": "Jaipur Heritage has an audited ₹42.15 Cr statutory deficit metric in the comparative financial statement. Quarantined in the review file because a deficit cannot be conflated with spending or revenue aggregates."
+  }
+]

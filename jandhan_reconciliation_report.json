@@ -1,0 +1,73 @@
+{
+  "report_title": "JanDhan Insights Municipal Finance Data Reconciliation & Audit Report",
+  "audit_timestamp": "2026-10-10T00:00:00Z",
+  "auditor_role": "Senior Full-Stack Engineer & Financial-Data Auditor",
+  "summary_metrics": {
+    "total_records_audited": 30,
+    "active_verified_records": 19,
+    "review_quarantined_records": 11,
+    "duplicate_ids": 0,
+    "missing_ids": 0,
+    "overlap_between_active_and_review": 0,
+    "authorities_covered": 4,
+    "authorities_list": [
+      "Pune Municipal Corporation",
+      "Brihanmumbai Municipal Corporation",
+      "Greater Jaipur Municipal Corporation",
+      "Jaipur Heritage Municipal Corporation"
+    ]
+  },
+  "status_breakdown": {
+    "Verified": 19,
+    "Partially Verified": 7,
+    "Unverified": 1,
+    "Rejected_Reclassified": 2,
+    "Rejected_Subsumed": 1
+  },
+  "specific_audit_decisions": {
+    "pune_departmental_allocations": {
+      "ids": [
+        "PMC_202425_BE_003",
+        "PMC_202425_BE_004",
+        "PMC_202425_BE_005",
+        "PMC_202425_BE_006",
+        "PMC_202425_BE_007",
+        "PMC_202425_BE_008",
+        "PMC_202425_BE_030"
+      ],
+      "decision": "Quarantined in jandhan_review_file.json as Partially Verified",
+      "reason": "Retained under review pending ward schedule reference verification; excluded from active aggregates to prevent double-counting with PMC_202425_BE_002 (₹11,601.00 Cr)."
+    },
+    "bmc_actual_expenditure": {
+      "id": "BMC_202324_ACT_023",
+      "decision": "Quarantined in jandhan_review_file.json as Unverified",
+      "reason": "Amount of ₹18,281.78 Cr is cited in speech comparative table; withheld from verified totals until formal audited CAG / Local Fund Audit report is published."
+    },
+    "bmc_total_budget_scope": {
+      "id": "BMC_202526_BE_010",
+      "decision": "Verified and active (₹74,427.41 Cr)",
+      "evidence": "Verified on Page 6 of BMC Commissioner Speech PDF: confirms total budget size covers Funds A (City), B (Improvement), E (Education), G (Water & Sewerage), and support to T (Transport/BEST)."
+    },
+    "jaipur_octroi_subsumption": {
+      "id": "JMC_GR_202223_ACT_029",
+      "decision": "Excluded and Quarantined as Rejected / Subsumed",
+      "reason": "Account Head 1202001 (₹275.00 Cr) is confirmed to be already subsumed within Total Revenue Receipts JMC_GR_202223_ACT_024 (₹502.99 Cr). Excluded to prevent double counting."
+    },
+    "jaipur_balance_sheet_metric": {
+      "id": "JMC_GR_202122_ACT_027",
+      "decision": "Excluded and Quarantined as Rejected / Reclassified",
+      "reason": "Stock balance-sheet asset/liability metric of ₹1,110.06 Cr cannot be added to revenue or expenditure aggregates."
+    },
+    "jaipur_heritage_deficit_metric": {
+      "id": "JMC_HER_202223_ACT_028",
+      "decision": "Excluded and Quarantined as Rejected / Reclassified",
+      "reason": "Accounting deficit figure of ₹42.15 Cr represents net shortfall, not total municipal spending outflow."
+    }
+  },
+  "mathematical_reconciliation": {
+    "currency_conversion_formula": "Normalized INR = Amount in Crore * 10,000,000",
+    "conversion_accuracy": "100% programmatically validated across all 30 records",
+    "zero_policy": "Zero is never used as substitute for missing information; null used consistently",
+    "aggregation_eligibility_enforced": true
+  }
+}
