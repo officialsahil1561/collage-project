@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ReconciledRecord, Project } from '../types';
-import { Search, X, HardHat, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { formatPrintedWithUnit } from '../utils/formatters';
+import { Search, X, HardHat, CheckCircle2, AlertTriangle, MapPinned, Layers } from 'lucide-react';
+import { formatPrintedWithUnit, formatCroresPrecise } from '../utils/formatters';
 import { dataProvider } from '../services/dataProvider';
 
 interface QuickSearchModalProps {
@@ -9,141 +9,255 @@ interface QuickSearchModalProps {
   onClose: () => void;
   onSelectRecord: (record: ReconciledRecord) => void;
   onSelectProject: (project: Project) => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
-export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ 
-  isOpen, 
-  onClose, 
+export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
+  isOpen,
+  onClose,
   onSelectRecord,
-  onSelectProject
+  onSelectProject,
+  onNavigateTab
 }) => {
   const [query, setQuery] = useState('');
   if (!isOpen) return null;
 
-  const records = query.trim() ? dataProvider.getFilteredRecords({
-    searchQuery: query,
-    includeReview: true
-  }) : [];
+  const q = query.trim().toLowerCase();
 
-  const projects = query.trim() ? dataProvider.getProjects().filter(p => 
-    p.name.toLowerCase().includes(query.toLowerCase()) ||
-    p.agency.toLowerCase().includes(query.toLowerCase()) ||
-    p.cityName.toLowerCase().includes(query.toLowerCase())
-  ) : [];
+  const records = q
+    ? dataProvider.getFilteredRecords({
+        searchQuery: query,
+        includeReview: true
+      })
+    : [];
+
+  const projects = q
+    ? dataProvider.getProjects().filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.department.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.location.toLowerCase().includes(q)
+      )
+    : [];
+
+  const departments = q
+    ? dataProvider.getDepartments().filter(
+        (d) =>
+          d.name.toLowerCase().includes(q) ||
+          d.description.toLowerCase().includes(q)
+      )
+    : [];
+
+  const wards = q
+    ? dataProvider.getWardOffices().filter(
+        (w) =>
+          w.name.toLowerCase().includes(q) ||
+          w.prabhagCoverage.toLowerCase().includes(q) ||
+          w.keyLocalities.some((loc) => loc.toLowerCase().includes(q))
+      )
+    : [];
+
+  const totalMatches = records.length + projects.length + departments.length + wards.length;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#142B3B]/60 backdrop-blur-xs flex items-start justify-center p-4 pt-20 animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-[#142B3B]/10 overflow-hidden">
-        
-        {/* Search Input Header */}
-        <div className="p-4 border-b border-[#142B3B]/10 flex items-center gap-3 bg-[#F8F9F7]">
-          <Search className="w-5 h-5 text-[#0D9488] shrink-0" />
+    <div
+      className="fixed inset-0 z-50 bg-[#0E2920]/65 backdrop-blur-[2px] flex items-start justify-center p-4 pt-16 sm:pt-20 animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-[6px] max-w-xl w-full shadow-2xl border border-[#E5E0D5] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-4 py-3 border-b border-[#E5E0D5] flex items-center gap-3 bg-[#FAF8F3]">
+          <Search className="w-4 h-4 text-[#0E7C74] shrink-0" />
           <input
             type="text"
             autoFocus
-            placeholder="Search Pune, BMC, Jaipur Greater, Heritage, Roads, Water..."
+            placeholder="Search PMC records, projects, 20 departments, 15 wards, Kothrud, JICA..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent text-[#142B3B] placeholder-[#142B3B]/40 text-sm focus:outline-hidden"
+            className="w-full h-9 bg-transparent text-[#1C2422] placeholder-[#5A6560] text-sm focus:outline-hidden"
           />
-          <button 
+          <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-[#142B3B]/40 hover:text-[#142B3B] rounded-xl hover:bg-[#142B3B]/5 transition-colors"
+            className="h-9 w-9 inline-flex items-center justify-center text-[#5A6560] hover:text-[#133429] rounded-[6px] hover:bg-white transition-colors cursor-pointer shrink-0"
             aria-label="Close search modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Results Body */}
         <div className="max-h-96 overflow-y-auto p-4 space-y-4">
-          {query.trim() === '' ? (
-            <div className="text-center py-8 text-xs text-[#142B3B]/50">
-              Type keywords to search all 30 audited municipal finance records and projects across PMC, BMC, and Jaipur.
+          {q === '' ? (
+            <div className="text-center py-8 text-xs text-[#5A6560]">
+              Search across all 38 PMC financial records, 8 projects, 20 departments, and 15 Regional Ward Offices.
             </div>
-          ) : (records.length === 0 && projects.length === 0) ? (
-            <div className="text-center py-8 text-xs text-[#142B3B]/60">
-              No matching records found for "{query}".
+          ) : totalMatches === 0 ? (
+            <div className="text-center py-8 text-xs text-[#5A6560]">
+              No matching Pune Municipal Corporation records found for &ldquo;{query}&rdquo;.
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Projects section */}
               {projects.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-bold text-[#0D9488] uppercase tracking-wider block px-1">
-                    Documented Capital Schemes ({projects.length})
+                <div className="space-y-2">
+                  <span className="text-[11px] font-semibold text-[#0E7C74] block px-1">
+                    PMC Public Projects ({projects.length})
                   </span>
-                  {projects.map(proj => (
-                    <div
+                  {projects.map((proj) => (
+                    <button
+                      type="button"
                       key={proj.id}
                       onClick={() => {
                         onSelectProject(proj);
                         onClose();
                       }}
-                      className="p-3 bg-[#F8F9F7] hover:bg-[#0D9488]/10 border border-[#142B3B]/10 rounded-xl cursor-pointer transition-colors flex items-center justify-between"
+                      className="w-full text-left p-3 bg-[#FAF8F3] hover:bg-[#E8F2EE] border border-[#E5E0D5] rounded-[6px] cursor-pointer transition-colors duration-150 flex items-center justify-between gap-3"
                     >
-                      <div className="space-y-0.5 pr-2">
-                        <div className="flex items-center gap-2">
-                          <HardHat className="w-3.5 h-3.5 text-[#0D9488]" />
-                          <span className="text-xs font-bold text-[#142B3B]">{proj.name}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <HardHat className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+                          <span className="text-xs font-semibold text-[#1C2422] truncate">
+                            {proj.name}
+                          </span>
                         </div>
-                        <p className="text-[11px] text-[#142B3B]/60">{proj.agency} · FY {proj.financialYear}</p>
+                        <p className="text-[11px] text-[#5A6560] truncate mt-0.5">
+                          {proj.category} · FY {proj.financialYear}
+                        </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="block font-mono font-bold text-[#142B3B] text-xs">
-                          ₹{proj.sanctionedCost.toLocaleString('en-IN')} Cr
+                        <span className="block font-mono tabular-nums font-bold text-[#133429] text-xs">
+                          {formatCroresPrecise(proj.sanctionedCost)}
                         </span>
-                        <span className="text-[10px] text-emerald-700 font-semibold">Verified Outlay</span>
+                        <span className="text-[10px] text-[#0E7C74] font-medium">
+                          {proj.completionStatus}
+                        </span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
 
-              {/* Records section */}
-              {records.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-bold text-[#142B3B]/50 uppercase tracking-wider block px-1">
-                    Municipal Financial Records ({records.length})
+              {departments.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] font-semibold text-[#133429] block px-1">
+                    PMC Departments ({departments.length})
                   </span>
-                  {records.map(rec => {
+                  {departments.slice(0, 4).map((dept) => (
+                    <button
+                      type="button"
+                      key={dept.id}
+                      onClick={() => {
+                        if (onNavigateTab) onNavigateTab('departments');
+                        onClose();
+                      }}
+                      className="w-full text-left p-2.5 bg-white hover:bg-[#FAF8F3] border border-[#E5E0D5] rounded-[6px] cursor-pointer transition-colors flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Layers className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-xs font-semibold text-[#1C2422] block truncate">
+                            {dept.name}
+                          </span>
+                          <span className="text-[11px] text-[#5A6560] block truncate">
+                            {dept.category}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-mono font-semibold text-[#133429] shrink-0">
+                        {dept.latestAllocationCrores !== null
+                          ? formatCroresPrecise(dept.latestAllocationCrores)
+                          : dept.allocationStatus}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {wards.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] font-semibold text-[#133429] block px-1">
+                    Regional Ward Offices ({wards.length})
+                  </span>
+                  {wards.slice(0, 4).map((ward) => (
+                    <button
+                      type="button"
+                      key={ward.id}
+                      onClick={() => {
+                        if (onNavigateTab) onNavigateTab('wards');
+                        onClose();
+                      }}
+                      className="w-full text-left p-2.5 bg-white hover:bg-[#FAF8F3] border border-[#E5E0D5] rounded-[6px] cursor-pointer transition-colors flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <MapPinned className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-xs font-semibold text-[#1C2422] block truncate">
+                            {ward.name}
+                          </span>
+                          <span className="text-[11px] text-[#5A6560] block truncate">
+                            {ward.keyLocalities.join(', ')}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono text-[#5A6560] shrink-0">
+                        {ward.zone}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {records.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] font-semibold text-[#5A6560] block px-1">
+                    Financial Records ({records.length})
+                  </span>
+                  {records.map((rec) => {
                     const isVerified = rec.verification_status === 'Verified';
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={rec.unique_id}
                         onClick={() => {
                           onSelectRecord(rec);
                           onClose();
                         }}
-                        className="p-3 bg-white hover:bg-slate-50 border border-[#142B3B]/10 rounded-xl cursor-pointer transition-colors flex items-center justify-between gap-3"
+                        className="w-full text-left p-3 bg-white hover:bg-[#FAF8F3] border border-[#E5E0D5] rounded-[6px] cursor-pointer transition-colors duration-150 flex items-center justify-between gap-3"
                       >
-                        <div className="space-y-0.5">
+                        <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px] font-bold text-[#0D9488] bg-[#0D9488]/10 px-1.5 py-0.2 rounded">
+                            <span className="font-mono text-[11px] font-semibold text-[#0E7C74] shrink-0">
                               {rec.unique_id}
                             </span>
-                            <span className="text-xs font-bold text-[#142B3B]">{rec.record_or_project_name}</span>
+                            <span className="text-xs font-semibold text-[#1C2422] truncate">
+                              {rec.record_or_project_name}
+                            </span>
                           </div>
-                          <p className="text-[11px] text-[#142B3B]/60">
-                            {rec.exact_authority} · {rec.financial_category} · FY {rec.financial_year}
+                          <p className="text-[11px] text-[#5A6560] truncate mt-0.5">
+                            {rec.source_classification} · {rec.financial_category} · FY{' '}
+                            {rec.financial_year}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="block font-mono font-bold text-[#142B3B] text-xs">
+                          <span className="block font-mono tabular-nums font-bold text-[#133429] text-xs">
                             {formatPrintedWithUnit(rec.amount_as_printed, rec.original_unit)}
                           </span>
-                          <span className={`text-[10px] font-semibold flex items-center justify-end gap-1 ${
-                            isVerified ? 'text-emerald-700' : 'text-amber-700'
-                          }`}>
+                          <span
+                            className={`text-[10px] font-medium inline-flex items-center justify-end gap-1 ${
+                              isVerified ? 'text-[#0E7C74]' : 'text-[#B45309]'
+                            }`}
+                          >
                             {isVerified ? (
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <CheckCircle2 className="w-3 h-3" />
                             ) : (
-                              <AlertTriangle className="w-3 h-3 text-amber-600" />
+                              <AlertTriangle className="w-3 h-3 text-[#D97706]" />
                             )}
-                            {rec.verification_status}
+                            <span>{rec.verification_status}</span>
                           </span>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -151,7 +265,6 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

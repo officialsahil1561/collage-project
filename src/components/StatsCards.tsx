@@ -1,129 +1,156 @@
 import React from 'react';
 import { AuthoritySummary } from '../types';
 import { formatCroresPrecise } from '../utils/formatters';
-import { Wallet, AlertCircle, HardHat, FileText, CheckCircle2, ShieldAlert } from 'lucide-react';
+import {
+  Building2,
+  Wallet,
+  Scale,
+  PieChart,
+  CheckCircle2,
+  ArrowRight
+} from 'lucide-react';
 
 interface StatsCardsProps {
   summary: AuthoritySummary;
-  onViewProjects?: () => void;
-  onViewReviewRecords?: () => void;
+  onViewBudget?: () => void;
+  onViewRevenue?: () => void;
 }
 
-export const StatsCards: React.FC<StatsCardsProps> = ({ 
-  summary, 
-  onViewProjects,
-  onViewReviewRecords 
+export const StatsCards: React.FC<StatsCardsProps> = ({
+  summary,
+  onViewBudget,
+  onViewRevenue
 }) => {
+  const comparableRemaining2324 = 9515.0 - summary.auditedActualExpenditure; // ₹1,389.40 Cr (FY 23-24 BE ₹9,515 Cr vs Actual ₹8,125.60 Cr)
+  const revenuePct = ((summary.revenueBudgetBE / summary.totalBudgetBE) * 100).toFixed(1);
+  const capitalPct = ((summary.capitalBudgetBE / summary.totalBudgetBE) * 100).toFixed(1);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
-      
-      {/* 1. Budgeted Card */}
-      <div className="bg-white p-5 rounded-2xl border border-[#142B3B]/10 shadow-xs flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between text-[#142B3B]/60 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Budgeted</span>
-            <span className="px-2 py-0.5 text-[11px] font-semibold bg-[#0D9488]/10 text-[#0D9488] rounded-md border border-[#0D9488]/20">
-              FY {summary.latestFinancialYear}
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+      {/* CARD 1 — Total Approved Budget (FY 2025-26 BE) */}
+      <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] hover:border-[#133429]/35 transition-colors duration-150 flex flex-col justify-between gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-semibold tracking-wide text-[#5A6560] uppercase block">
+              Approved Budget (BE)
             </span>
-          </div>
-          {summary.totalBudgetBE !== null && summary.totalBudgetBE !== undefined ? (
-            <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#142B3B]">
+            <div className="text-[24px] leading-tight font-bold font-mono tabular-nums tracking-tight text-[#133429]">
               {formatCroresPrecise(summary.totalBudgetBE)}
             </div>
-          ) : (
-            <div className="text-sm font-semibold text-slate-500 py-1">
-              Budget Estimate not available in sourced records
-            </div>
-          )}
-          <p className="text-xs text-[#142B3B]/70 mt-1.5 leading-relaxed">
-            Budget Estimate (BE) for {summary.authorityName}.
-          </p>
-        </div>
-        <div className="mt-3 pt-2.5 border-t border-[#142B3B]/5 flex items-center justify-between text-[11px] text-[#142B3B]/60">
-          <span className="truncate max-w-[200px]">{summary.accountingScope}</span>
-          <span className="font-semibold text-[#0D9488] shrink-0">Official Outlay</span>
-        </div>
-      </div>
-
-      {/* 2. Actually Spent / Audited Actuals Card */}
-      <div className="bg-white p-5 rounded-2xl border border-[#142B3B]/10 shadow-xs flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between text-[#142B3B]/60 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Actually Spent</span>
-            <span className="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-700 rounded-md border border-slate-200">
-              Audited Accounts
-            </span>
           </div>
-          {summary.auditedActuals !== null && summary.auditedActuals !== undefined ? (
-            <div>
-              <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-800">
-                {formatCroresPrecise(summary.auditedActuals)}
-              </div>
-              <p className="text-xs text-[#142B3B]/70 mt-1.5 leading-relaxed">
-                Audited actual disbursements sourced from official accounts.
-              </p>
-            </div>
-          ) : (
-            <div>
-              <div className="text-sm font-semibold text-amber-900 flex items-center gap-1.5 py-1">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Actual expenditure not available in the sourced records</span>
-              </div>
-              <p className="text-xs text-[#142B3B]/70 mt-1.5 leading-relaxed">
-                Budget documents report BE/RE. Audited accounts published separately.
-              </p>
-            </div>
-          )}
+          <div className="w-9 h-9 rounded-[6px] bg-[#E8F2EE] text-[#0E7C74] flex items-center justify-center shrink-0">
+            <Building2 className="w-[18px] h-[18px]" />
+          </div>
         </div>
-        <div className="mt-3 pt-2.5 border-t border-[#142B3B]/5 flex items-center justify-between text-[11px] text-[#142B3B]/60">
-          <span>Reporting Stage: Actual Outlay</span>
-          <span className={summary.auditedActuals ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-semibold'}>
-            {summary.auditedActuals ? 'Audited Final' : 'Pending Audit'}
+
+        <div className="pt-3 border-t border-[#E5E0D5] flex items-center justify-between gap-2 text-xs">
+          <span className="font-mono tabular-nums text-[#5A6560]">
+            FY {summary.latestFinancialYear} · +8.8% YoY
           </span>
-        </div>
-      </div>
-
-      {/* 3. Public Projects / Capital Works Card */}
-      <div className="bg-white p-5 rounded-2xl border border-[#142B3B]/10 shadow-xs flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between text-[#142B3B]/60 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Public Projects</span>
-            <span className="px-2 py-0.5 text-[11px] font-semibold bg-[#142B3B]/5 text-[#142B3B] rounded-md">
-              Capital Schemes
-            </span>
-          </div>
-          <div className="text-2xl sm:text-3xl font-extrabold font-mono text-[#142B3B] flex items-baseline gap-2">
-            <span>
-              {summary.authorityKey === 'mumbai-bmc' ? '2' : '0'}
-            </span>
-            <span className="text-xs font-sans font-medium text-[#142B3B]/60">
-              {summary.authorityKey === 'mumbai-bmc' ? 'major capital schemes verified' : 'individual schemes in sheet'}
-            </span>
-          </div>
-          <p className="text-xs text-[#142B3B]/70 mt-1.5 leading-relaxed">
-            {summary.authorityKey === 'mumbai-bmc'
-              ? 'Documented capital allocations for Coastal Road & GMLR Twin Tunnels.'
-              : `Authority publishes accounting-head budget sheets; tender-level contract registries are not disaggregated.`}
-          </p>
-        </div>
-        <div className="mt-3 pt-2.5 border-t border-[#142B3B]/5 flex items-center justify-between text-[11px]">
-          {summary.authorityKey === 'mumbai-bmc' && onViewProjects ? (
-            <button 
-              onClick={onViewProjects}
-              className="text-[#0D9488] font-bold hover:underline flex items-center gap-1"
+          {onViewBudget ? (
+            <button
+              type="button"
+              onClick={onViewBudget}
+              className="inline-flex items-center gap-1 font-semibold text-[#0E7C74] hover:text-[#133429] transition-colors cursor-pointer"
             >
-              <span>Inspect Capital Schemes</span>
-              <HardHat className="w-3.5 h-3.5" />
+              <span>Tracker</span>
+              <ArrowRight className="w-3 h-3" />
             </button>
           ) : (
-            <span className="text-slate-400 italic">No disaggregated contracts</span>
+            <span className="font-medium text-[#0E7C74]">Official BE</span>
           )}
-          <span className="text-slate-500 font-medium">
-            {summary.verifiedRecordsCount} active records
+        </div>
+      </div>
+
+      {/* CARD 2 — Audited Actual Expenditure (FY 2023-24) */}
+      <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] hover:border-[#133429]/35 transition-colors duration-150 flex flex-col justify-between gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-semibold tracking-wide text-[#5A6560] uppercase block">
+              Audited Actual Spend
+            </span>
+            <div className="text-[24px] leading-tight font-bold font-mono tabular-nums tracking-tight text-[#0E7C74]">
+              {formatCroresPrecise(summary.auditedActualExpenditure)}
+            </div>
+          </div>
+          <div className="w-9 h-9 rounded-[6px] bg-[#E8F2EE] text-[#0E7C74] flex items-center justify-center shrink-0">
+            <Wallet className="w-[18px] h-[18px]" />
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-[#E5E0D5] flex items-center justify-between gap-2 text-xs">
+          <span className="font-mono tabular-nums text-[#5A6560]">
+            FY {summary.auditedActualExpenditureFY} (Latest Audited)
+          </span>
+          <span className="inline-flex items-center gap-1 font-semibold text-[#0E7C74]">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span>Audited</span>
           </span>
         </div>
       </div>
 
+      {/* CARD 3 — Comparable Remaining Budget (FY 2023-24 BE vs Actual) */}
+      <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] hover:border-[#133429]/35 transition-colors duration-150 flex flex-col justify-between gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-semibold tracking-wide text-[#5A6560] uppercase block">
+              Unspent Gap (FY 23-24)
+            </span>
+            <div className="text-[24px] leading-tight font-bold font-mono tabular-nums tracking-tight text-[#133429]">
+              {formatCroresPrecise(comparableRemaining2324)}
+            </div>
+          </div>
+          <div className="w-9 h-9 rounded-[6px] bg-[#B45309]/10 text-[#B45309] flex items-center justify-center shrink-0">
+            <Scale className="w-[18px] h-[18px]" />
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-[#E5E0D5] flex items-center justify-between gap-2 text-xs">
+          <span className="font-mono tabular-nums text-[#5A6560]">
+            85.4% of ₹9,515 Cr BE
+          </span>
+          <span className="font-medium text-[#B45309]">24-25/25-26: N/A</span>
+        </div>
+      </div>
+
+      {/* CARD 4 — Revenue vs Capital Split (FY 2025-26 BE) */}
+      <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] hover:border-[#133429]/35 transition-colors duration-150 flex flex-col justify-between gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-semibold tracking-wide text-[#5A6560] uppercase block">
+              Revenue / Capital Split
+            </span>
+            <div className="flex items-baseline gap-1.5 font-mono tabular-nums">
+              <span className="text-[20px] leading-tight font-bold text-[#133429]">
+                {revenuePct}%
+              </span>
+              <span className="text-xs text-[#5A6560]">/</span>
+              <span className="text-[20px] leading-tight font-bold text-[#0E7C74]">
+                {capitalPct}%
+              </span>
+            </div>
+          </div>
+          <div className="w-9 h-9 rounded-[6px] bg-[#FAF8F3] text-[#133429] flex items-center justify-center shrink-0 border border-[#E5E0D5]">
+            <PieChart className="w-[18px] h-[18px]" />
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-[#E5E0D5] flex items-center justify-between gap-2 text-xs">
+          <span className="font-mono tabular-nums text-[#5A6560] truncate">
+            ₹7,093 Cr Rev · ₹5,524 Cr Cap
+          </span>
+          {onViewRevenue && (
+            <button
+              type="button"
+              onClick={onViewRevenue}
+              className="inline-flex items-center gap-1 font-semibold text-[#0E7C74] hover:text-[#133429] transition-colors cursor-pointer shrink-0"
+            >
+              <span>Receipts</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

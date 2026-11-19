@@ -1,144 +1,211 @@
 import React, { useState } from 'react';
-import { ReconciledRecord, MunicipalAuthority } from '../types';
+import { ReconciledRecord } from '../types';
 import { dataProvider } from '../services/dataProvider';
-import { formatCroresPrecise, formatPrintedWithUnit } from '../utils/formatters';
-import { Building2, AlertTriangle, ShieldCheck, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { formatCroresPrecise } from '../utils/formatters';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ExternalLink,
+  AlertCircle,
+  Search,
+  X
+} from 'lucide-react';
 
 interface DepartmentsPageProps {
   onSelectRecord: (record: ReconciledRecord) => void;
 }
 
 export const DepartmentsPage: React.FC<DepartmentsPageProps> = ({ onSelectRecord }) => {
-  const [selectedAuth, setSelectedAuth] = useState<string>('All');
+  const departments = dataProvider.getDepartments();
+  const allRecords = dataProvider.getAllAuditedRecords();
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const departmentalRecords = dataProvider.getDepartmentalRecords(selectedAuth);
-
-  const authorities: MunicipalAuthority[] = [
-    'Pune Municipal Corporation',
-    'Brihanmumbai Municipal Corporation',
-    'Greater Jaipur Municipal Corporation',
-    'Jaipur Heritage Municipal Corporation'
+  const categories = [
+    'All',
+    'Core Infrastructure',
+    'Civic Services & Environment',
+    'Social & Welfare',
+    'Revenue & Administration'
   ];
 
+  const filteredDepartments = departments.filter((dept) => {
+    if (selectedCategory !== 'All' && dept.category !== selectedCategory) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        dept.name.toLowerCase().includes(q) ||
+        dept.description.toLowerCase().includes(q) ||
+        dept.sourceNote.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  const findLinkedRecord = (ids: string[]) => {
+    if (!ids || ids.length === 0) return null;
+    return allRecords.find((r) => r.unique_id === ids[0]) || null;
+  };
+
   return (
-    <div className="space-y-6 animate-fadeIn max-w-7xl mx-auto pb-16">
-      
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#142B3B] tracking-tight">
-          Municipal Departments & Sector Allocations
-        </h1>
-        <p className="text-xs sm:text-sm text-[#142B3B]/70 mt-1">
-          Audited departmental provisions and sub-heads across municipal authorities.
-        </p>
-      </div>
-
-      {/* Critical Audit Disclosure Banner */}
-      <div className="bg-amber-50 border border-amber-200/80 p-4.5 rounded-2xl text-xs space-y-1.5 text-amber-950 shadow-2xs">
-        <div className="flex items-center gap-2 font-bold text-sm text-amber-900">
-          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>Departmental Double-Counting Prevention Protocol</span>
-        </div>
-        <p className="leading-relaxed text-slate-700">
-          To prevent double-counting expenditure against the consolidated baseline municipal budget, departmental sub-head allocations must have verified, independent budget schedule citations. The 7 Pune departmental line-items (Water, Roads, Waste, Drainage, Health, Education, Parks) are quarantined in the review dataset until their printed ward schedule references are confirmed.
-        </p>
-      </div>
-
-      {/* Filter by Authority */}
-      <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-[#142B3B]/10 w-fit">
-        <span className="text-xs font-semibold text-slate-500 pl-2">Filter Authority:</span>
-        <select
-          value={selectedAuth}
-          onChange={(e) => setSelectedAuth(e.target.value)}
-          className="text-xs font-bold text-[#142B3B] bg-transparent focus:outline-hidden pr-2 cursor-pointer"
-        >
-          <option value="All">All Authorities</option>
-          {authorities.map(a => (
-            <option key={a} value={a}>{a}</option>
+    <div className="space-y-6 animate-fadeIn">
+      {/* Filter Bar */}
+      <div className="bg-white p-4 rounded-[6px] border border-[#E5E0D5] flex flex-col lg:flex-row lg:items-center gap-3">
+        <div className="flex flex-wrap items-center gap-1 p-1 bg-[#FAF8F3] border border-[#E5E0D5] rounded-[6px]">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat)}
+              className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-colors cursor-pointer ${
+                selectedCategory === cat
+                  ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                  : 'text-[#5A6560] hover:text-[#133429] font-medium'
+              }`}
+            >
+              {cat === 'All' ? `All (${departments.length})` : cat}
+            </button>
           ))}
-        </select>
+        </div>
+
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="w-3.5 h-3.5 text-[#5A6560] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search PMC department..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-9 bg-[#FAF8F3] border border-[#E5E0D5] rounded-[6px] pl-9 pr-8 text-xs text-[#1C2422] placeholder-[#5A6560] focus:outline-hidden focus:border-[#0E7C74] focus:bg-white transition-colors"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5A6560] hover:text-[#1C2422] cursor-pointer"
+              aria-label="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Departmental Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {departmentalRecords.map(rec => {
-          const isVerified = rec.verification_status === 'Verified';
+      {/* Double-Counting Disclosure */}
+      <div className="bg-[#B45309]/[0.07] border border-[#B45309]/25 px-4 py-3.5 rounded-[6px] text-xs flex items-start gap-2.5">
+        <AlertTriangle className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
+        <p className="text-[#1C2422] leading-relaxed">
+          <strong className="text-[#B45309]">Strict Accounting Discipline:</strong> Seven FY 2024-25 PMC sub-heads (Water, Roads, SWM, Drainage, Health, Education, Parks) remain quarantined as <em>Partially Verified</em> to avoid double-counting against the ₹11,601 Cr consolidated BE. Departments without standalone verified allocations display <strong>Data Not Available</strong> instead of invented figures.
+        </p>
+      </div>
+
+      {/* 20 Department Profile Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        {filteredDepartments.map((dept) => {
+          const isVerified = dept.allocationStatus === 'Verified';
+          const isQuarantined = dept.allocationStatus === 'Partially Verified (Quarantined)';
+          const linkedRecord = findLinkedRecord(dept.linkedRecordIds);
+
           return (
-            <div 
-              key={rec.unique_id}
-              className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
+            <div
+              key={dept.id}
+              className={`bg-white p-5 rounded-[6px] border flex flex-col justify-between gap-4 transition-colors duration-150 ${
                 isVerified
-                  ? 'bg-white border-[#142B3B]/10 hover:border-[#0D9488]/40 shadow-xs'
-                  : 'bg-amber-50/30 border-amber-200 hover:border-amber-300 shadow-2xs'
+                  ? 'border-[#E5E0D5] hover:border-[#0E7C74]/50'
+                  : isQuarantined
+                  ? 'border-[#B45309]/35'
+                  : 'border-[#E5E0D5]'
               }`}
             >
               <div className="space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-0.5">
-                    <span className="font-mono text-[10px] font-bold text-[#0D9488] bg-[#0D9488]/10 px-2 py-0.5 rounded">
-                      {rec.unique_id}
+                <div className="flex items-center justify-between gap-2 text-[11px]">
+                  <span className="font-medium text-[#5A6560]">{dept.category}</span>
+                  <span
+                    className={`inline-flex items-center gap-1 font-semibold ${
+                      isVerified
+                        ? 'text-[#0E7C74]'
+                        : isQuarantined
+                        ? 'text-[#B45309]'
+                        : 'text-[#5A6560]'
+                    }`}
+                  >
+                    {isVerified ? (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    ) : isQuarantined ? (
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#D97706]" />
+                    ) : (
+                      <AlertCircle className="w-3.5 h-3.5 text-[#5A6560]" />
+                    )}
+                    <span>{dept.allocationStatus}</span>
+                  </span>
+                </div>
+
+                <div>
+                  <h2 className="font-serif font-semibold text-base text-[#133429] leading-snug">
+                    {dept.name}
+                  </h2>
+                  <p className="text-xs text-[#5A6560] mt-1 leading-relaxed">{dept.description}</p>
+                </div>
+
+                <div className="bg-[#FAF8F3] p-3 rounded-[6px] border border-[#E5E0D5] flex items-center justify-between gap-2">
+                  <div>
+                    <span className="text-[11px] text-[#5A6560] block">
+                      {dept.latestAllocationCrores !== null
+                        ? 'Documented Outlay'
+                        : 'Expenditure Head'}
                     </span>
-                    <h3 className="font-bold text-sm text-[#142B3B] mt-1">
-                      {rec.record_or_project_name}
-                    </h3>
+                    <span className="text-[11px] font-mono tabular-nums text-[#5A6560]">
+                      {dept.latestAllocationFY
+                        ? `FY ${dept.latestAllocationFY}`
+                        : 'PMC General Fund'}
+                    </span>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
-                    isVerified
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      : 'bg-amber-100/70 text-amber-900 border-amber-300'
-                  }`}>
-                    {rec.verification_status}
-                  </span>
-                </div>
-
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Authority:</span>
-                    <span className="font-semibold text-[#142B3B] truncate max-w-[180px]">{rec.exact_authority}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Sector / Wing:</span>
-                    <span className="font-semibold text-[#142B3B]">{rec.department_or_sector}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Reporting Period:</span>
-                    <span className="font-mono">{rec.financial_category} · FY {rec.financial_year}</span>
+                  <div className="text-right">
+                    {dept.latestAllocationCrores !== null ? (
+                      <span className="text-base font-mono tabular-nums font-bold text-[#133429]">
+                        {formatCroresPrecise(dept.latestAllocationCrores)}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-semibold text-[#B45309]">
+                        Data Not Available
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div className="bg-[#F8F9F7] p-3 rounded-xl border border-[#142B3B]/5">
-                  <span className="text-[10px] font-bold text-[#142B3B]/50 uppercase tracking-wider block">
-                    Recorded Allocation
-                  </span>
-                  <div className="text-xl font-mono font-bold text-[#142B3B] mt-0.5">
-                    {formatPrintedWithUnit(rec.amount_as_printed, rec.original_unit)}
-                  </div>
-                </div>
+                {dept.revenueNote && (
+                  <div className="text-[11px] font-medium text-[#0E7C74]">{dept.revenueNote}</div>
+                )}
 
-                {rec.reason_for_quarantine && (
-                  <div className="text-[11px] text-amber-900 bg-amber-100/50 p-2.5 rounded-lg border border-amber-200 leading-relaxed">
-                    <span className="font-bold">Quarantine Note:</span> {rec.reason_for_quarantine}
-                  </div>
+                <p className="text-[11px] text-[#5A6560] leading-relaxed">{dept.sourceNote}</p>
+              </div>
+
+              <div className="pt-3 border-t border-[#E5E0D5] flex items-center justify-between gap-2 text-xs">
+                <a
+                  href={dept.officialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#5A6560] hover:text-[#133429] font-medium inline-flex items-center gap-1"
+                >
+                  <span>PMC Portal</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+
+                {linkedRecord ? (
+                  <button
+                    type="button"
+                    onClick={() => onSelectRecord(linkedRecord)}
+                    className="px-3 py-1.5 bg-[#E8F2EE] hover:bg-[#133429] text-[#0E7C74] hover:text-[#FAF8F3] font-semibold rounded-[6px] transition-colors duration-150 cursor-pointer"
+                  >
+                    Inspect {linkedRecord.unique_id}
+                  </button>
+                ) : (
+                  <span className="text-[11px] text-[#5A6560] font-mono">No standalone ID</span>
                 )}
               </div>
-
-              <div className="pt-4 mt-4 border-t border-[#142B3B]/5 flex items-center justify-between text-xs">
-                <span className="text-[11px] text-slate-500 truncate max-w-[170px]" title={rec.document_title}>
-                  {rec.page_or_table_ref}
-                </span>
-                <button
-                  onClick={() => onSelectRecord(rec)}
-                  className="px-3 py-1 bg-[#0D9488]/10 hover:bg-[#0D9488]/20 text-[#0D9488] font-bold rounded-lg transition-colors"
-                >
-                  Inspect Evidence
-                </button>
-              </div>
-
             </div>
           );
         })}
       </div>
-
     </div>
   );
 };

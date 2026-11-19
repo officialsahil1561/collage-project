@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReconciledRecord } from '../types';
-import { formatCroresPrecise, formatNormalizedINR, formatPrintedWithUnit } from '../utils/formatters';
-import { X, ExternalLink, ShieldCheck, AlertCircle, Building2, Calendar, FileText, CheckCircle2, AlertTriangle, Ban } from 'lucide-react';
+import { formatNormalizedINR, formatPrintedWithUnit } from '../utils/formatters';
+import { X, ExternalLink, Building2, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface RecordDetailModalProps {
   record: ReconciledRecord | null;
@@ -12,198 +12,201 @@ export const RecordDetailModal: React.FC<RecordDetailModalProps> = ({ record, on
   if (!record) return null;
 
   const isVerified = record.verification_status === 'Verified';
-  const isQuarantined = record.verification_status === 'Partially Verified' || record.verification_status === 'Unverified';
-  const isExcluded = record.verification_status === 'Rejected / Reclassified' || record.verification_status === 'Rejected / Subsumed';
+  const isQuarantined =
+    record.verification_status === 'Partially Verified' ||
+    record.verification_status === 'Unverified';
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#142B3B]/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-[#142B3B]/10">
-        
-        {/* Modal Header */}
-        <div className="p-6 sm:p-7 border-b border-[#142B3B]/10 flex items-start justify-between bg-[#F8F9F7] sticky top-0 z-10">
-          <div className="space-y-1.5 pr-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs font-bold text-[#0D9488] bg-[#0D9488]/10 px-2.5 py-0.5 rounded-md border border-[#0D9488]/20">
-                {record.unique_id}
+    <div
+      className="fixed inset-0 z-50 bg-[#0E2920]/65 backdrop-blur-[2px] flex items-center justify-center p-4 animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-[6px] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#E5E0D5]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-[#E5E0D5] flex items-start justify-between bg-[#FAF8F3] sticky top-0 z-10">
+          <div className="space-y-1 pr-4 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-mono font-semibold text-[#0E7C74]">{record.unique_id}</span>
+              <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+              <span
+                className={`inline-flex items-center gap-1 font-semibold ${
+                  isVerified
+                    ? 'text-[#0E7C74]'
+                    : isQuarantined
+                    ? 'text-[#B45309]'
+                    : 'text-rose-700'
+                }`}
+              >
+                {isVerified ? (
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                ) : (
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#D97706]" />
+                )}
+                <span>{record.verification_status}</span>
               </span>
-              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
-                isVerified 
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : isQuarantined
-                  ? 'bg-amber-50 text-amber-800 border-amber-200'
-                  : 'bg-rose-50 text-rose-800 border-rose-200'
-              }`}>
-                {record.verification_status}
-              </span>
-              <span className="text-xs text-[#142B3B]/60 font-medium">
+              <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+              <span className="font-mono tabular-nums text-[#5A6560]">
                 FY {record.financial_year}
               </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#142B3B] leading-tight">
+            <h2 className="font-serif text-lg font-semibold text-[#133429] leading-snug">
               {record.record_or_project_name}
             </h2>
-            <div className="text-xs text-[#142B3B]/80 font-medium flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-[#0D9488]" />
-              <span>{record.exact_authority}</span>
+            <div className="text-xs text-[#5A6560] flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+              <span>{record.exact_authority} · {record.source_classification}</span>
             </div>
           </div>
-          <button 
+          <button
+            type="button"
             onClick={onClose}
-            className="p-2 text-[#142B3B]/40 hover:text-[#142B3B] rounded-xl hover:bg-[#142B3B]/5 transition-colors shrink-0"
+            className="h-9 w-9 inline-flex items-center justify-center text-[#5A6560] hover:text-[#133429] rounded-[6px] hover:bg-white transition-colors shrink-0 cursor-pointer"
             aria-label="Close record modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 sm:p-7 space-y-6 text-sm">
-          
-          {/* Financial Amounts Display */}
-          <div className="bg-[#F8F9F7] p-4.5 rounded-2xl border border-[#142B3B]/10 space-y-3">
-            <div className="text-[11px] font-bold text-[#142B3B]/50 uppercase tracking-wider">
-              Financial Metric & Normalized INR
+        {/* Body */}
+        <div className="p-6 space-y-4 text-xs">
+          <div className="bg-[#FAF8F3] p-4 rounded-[6px] border border-[#E5E0D5] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span className="block text-[11px] font-semibold text-[#5A6560]">
+                Amount Printed in Document
+              </span>
+              <span className="text-xl font-bold font-mono tabular-nums text-[#133429] block mt-1">
+                {formatPrintedWithUnit(record.amount_as_printed, record.original_unit)}
+              </span>
+              <span className="text-[11px] text-[#5A6560] block mt-0.5">
+                {record.financial_category}
+              </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <span className="block text-xs text-[#142B3B]/60 font-medium">Amount Printed in Document</span>
-                <span className="text-2xl font-bold font-mono text-[#142B3B] block">
-                  {formatPrintedWithUnit(record.amount_as_printed, record.original_unit)}
-                </span>
-                <span className="text-[11px] text-[#142B3B]/50 block">
-                  Accounting Category: {record.financial_category}
-                </span>
-              </div>
-              <div>
-                <span className="block text-xs text-[#142B3B]/60 font-medium">Normalized Currency (₹1 Cr = 10⁷ INR)</span>
-                <span className="text-xl font-bold font-mono text-[#0D9488] block">
-                  {formatNormalizedINR(record.normalized_inr_unit)}
-                </span>
-                <span className="text-[11px] text-[#142B3B]/50 block">
-                  Programmatically verified calculation
-                </span>
-              </div>
+            <div>
+              <span className="block text-[11px] font-semibold text-[#5A6560]">
+                Normalized Currency (₹1 Cr = 10⁷ INR)
+              </span>
+              <span className="text-lg font-bold font-mono tabular-nums text-[#0E7C74] block mt-1">
+                {formatNormalizedINR(record.normalized_inr_unit)}
+              </span>
+              <span className="text-[11px] text-[#5A6560] block mt-0.5">
+                {record.source_classification}
+              </span>
             </div>
           </div>
 
-          {/* Aggregation & Audit Status Card */}
-          <div className={`p-4 rounded-2xl border text-xs space-y-1.5 ${
-            record.aggregation_eligible
-              ? 'bg-emerald-50/50 border-emerald-200 text-emerald-900'
-              : 'bg-amber-50/70 border-amber-200 text-amber-950'
-          }`}>
-            <div className="flex items-center gap-2 font-bold text-sm">
+          <div
+            className={`p-4 rounded-[6px] border space-y-1.5 ${
+              record.aggregation_eligible
+                ? 'bg-[#E8F2EE] border-[#0E7C74]/25 text-[#1C2422]'
+                : 'bg-[#B45309]/[0.08] border-[#B45309]/25 text-[#1C2422]'
+            }`}
+          >
+            <div className="flex items-center gap-1.5 font-semibold">
               {record.aggregation_eligible ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Aggregation Eligible (Active Verified)</span>
+                  <CheckCircle2 className="w-4 h-4 text-[#0E7C74] shrink-0" />
+                  <span className="text-[#0E7C74]">Aggregation Eligible (Active Verified PMC Record)</span>
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  <span>Quarantined / Excluded from Active Aggregates</span>
+                  <AlertTriangle className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <span className="text-[#B45309]">Quarantined / Excluded from Active Aggregates</span>
                 </>
               )}
             </div>
             {record.exclusion_reason && (
-              <p className="leading-relaxed text-slate-700">
-                <span className="font-semibold">Exclusion Note:</span> {record.exclusion_reason}
+              <p className="text-[#5A6560] leading-relaxed">
+                <strong className="text-[#1C2422]">Exclusion Note:</strong> {record.exclusion_reason}
               </p>
             )}
             {record.reason_for_quarantine && (
-              <p className="leading-relaxed text-slate-700">
-                <span className="font-semibold">Audit Review Detail:</span> {record.reason_for_quarantine}
+              <p className="text-[#5A6560] leading-relaxed">
+                <strong className="text-[#1C2422]">Audit Detail:</strong>{' '}
+                {record.reason_for_quarantine}
               </p>
             )}
           </div>
 
-          {/* Classification Metadata */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-[#142B3B]/50 uppercase tracking-wider">
-              Classification & Departmental Scope
-            </h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="bg-[#F8F9F7] p-3.5 rounded-xl border border-[#142B3B]/10">
-                <span className="text-[#142B3B]/50 block font-semibold">Department / Sector</span>
-                <span className="font-bold text-[#142B3B] block mt-0.5">
-                  {record.department_or_sector}
-                </span>
-              </div>
-              <div className="bg-[#F8F9F7] p-3.5 rounded-xl border border-[#142B3B]/10">
-                <span className="text-[#142B3B]/50 block font-semibold">Record Type</span>
-                <span className="font-bold text-[#142B3B] block mt-0.5">
-                  {record.record_type}
-                </span>
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-3.5 rounded-[6px] border border-[#E5E0D5] bg-white">
+              <span className="text-[11px] text-[#5A6560] block">Department / Sector</span>
+              <span className="font-semibold text-[#1C2422] block mt-1">
+                {record.department_or_sector}
+              </span>
             </div>
-
-            <div className="bg-slate-50 p-3.5 rounded-xl border border-[#142B3B]/10 text-xs">
-              <span className="text-[#142B3B]/50 block font-semibold mb-1">Extraction Note & Line-Item Context</span>
-              <p className="text-[#142B3B] leading-relaxed">
-                {record.extraction_note}
-              </p>
+            <div className="p-3.5 rounded-[6px] border border-[#E5E0D5] bg-white">
+              <span className="text-[11px] text-[#5A6560] block">Record Type</span>
+              <span className="font-semibold text-[#1C2422] block mt-1">{record.record_type}</span>
+            </div>
+            <div className="p-3.5 rounded-[6px] border border-[#E5E0D5] bg-white">
+              <span className="text-[11px] text-[#5A6560] block">Source Classification</span>
+              <span className="font-semibold text-[#0E7C74] block mt-1">
+                {record.source_classification}
+              </span>
             </div>
           </div>
 
-          {/* Official Document Provenance */}
-          <div className="pt-4 border-t border-[#142B3B]/10 space-y-3">
-            <h3 className="text-xs font-bold text-[#142B3B]/50 uppercase tracking-wider">
-              Primary Document Provenance & Citation
-            </h3>
+          <div className="p-4 rounded-[6px] border border-[#E5E0D5] bg-[#FAF8F3]">
+            <span className="text-[11px] font-semibold text-[#5A6560] block mb-1">
+              Extraction Note
+            </span>
+            <p className="text-[#1C2422] leading-relaxed">{record.extraction_note}</p>
+          </div>
 
-            <div className="bg-[#F8F9F7] p-4 rounded-2xl border border-[#142B3B]/10 space-y-3 text-xs">
+          <div className="p-4 rounded-[6px] border border-[#E5E0D5] bg-white space-y-3">
+            <div>
+              <span className="text-[11px] text-[#5A6560] block">Primary Source Document</span>
+              <span className="font-semibold text-[#133429] text-sm block mt-0.5">
+                {record.document_title}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-[#E5E0D5] text-[11px]">
               <div>
-                <span className="text-[#142B3B]/50 block font-semibold">Document Title</span>
-                <span className="font-bold text-[#142B3B] text-sm block mt-0.5">
-                  {record.document_title}
+                <span className="text-[#5A6560] block">Page / Table Ref</span>
+                <span className="font-medium text-[#1C2422] mt-0.5 block">
+                  {record.page_or_table_ref}
                 </span>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-[#142B3B]/10 text-[11px]">
-                <div>
-                  <span className="text-[#142B3B]/50 block font-medium">Page / Table Ref</span>
-                  <span className="font-semibold text-[#142B3B]">{record.page_or_table_ref}</span>
-                </div>
-                <div>
-                  <span className="text-[#142B3B]/50 block font-medium">Publication Date</span>
-                  <span className="font-semibold text-[#142B3B]">{record.publication_date || 'Document Undated'}</span>
-                </div>
-                <div>
-                  <span className="text-[#142B3B]/50 block font-medium">Audit Retrieval Date</span>
-                  <span className="font-semibold text-[#142B3B]">{record.date_accessed}</span>
-                </div>
+              <div>
+                <span className="text-[#5A6560] block">Publication Date</span>
+                <span className="font-mono tabular-nums text-[#1C2422] mt-0.5 block">
+                  {record.publication_date || 'Data Not Available'}
+                </span>
               </div>
-
-              <div className="pt-2">
-                <a 
-                  href={record.official_document_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[#0D9488] font-bold hover:underline"
-                >
-                  <span>Open Primary Source Document in External Tab</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+              <div>
+                <span className="text-[#5A6560] block">Retrieved</span>
+                <span className="font-mono tabular-nums text-[#1C2422] mt-0.5 block">
+                  {record.date_accessed}
+                </span>
               </div>
             </div>
+            <div className="pt-1">
+              <a
+                href={record.official_document_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[#0E7C74] hover:text-[#133429] font-semibold transition-colors"
+              >
+                <span>Open Primary Source Document</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
-
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-4 sm:p-5 bg-[#F8F9F7] border-t border-[#142B3B]/10 flex items-center justify-between text-xs">
-          <span className="text-slate-500">
-            JanDhan Insights · Traceable Municipal Data Audit
-          </span>
+        <div className="px-6 py-3.5 bg-[#FAF8F3] border-t border-[#E5E0D5] flex items-center justify-between text-xs">
+          <span className="text-[#5A6560]">Pune Municipal Corporation · Traceable Record</span>
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-[#142B3B] text-white rounded-xl font-medium hover:bg-[#142B3B]/90 transition-colors"
+            className="h-9 px-4 bg-[#133429] hover:bg-[#0E2920] text-[#FAF8F3] rounded-[6px] font-medium transition-colors cursor-pointer"
           >
             Close
           </button>
         </div>
-
       </div>
     </div>
   );

@@ -1,93 +1,108 @@
 [
   {
-    "id": "src-pmc-speech-202526",
+    "id": "src-pmc-portal",
     "publisher": "Pune Municipal Corporation (PMC)",
     "exact_authority": "Pune Municipal Corporation",
-    "document_title": "PMC Commissioner Budget Statement FY 2025-26",
-    "document_type": "Municipal Commissioner Budget Presentation",
-    "official_url": "https://www.pmc.gov.in/en/budget-overview",
-    "financial_years_covered": "2025-26",
-    "data_categories_supported": ["Budget Estimates (BE)", "Total Municipal Outlay"],
+    "document_title": "PMC Official Civic Portal & Commissioner Budget Overview (FY 2025-26)",
+    "document_type": "Official Municipal Portal & Budget Statement",
+    "official_url": "https://www.pmc.gov.in/",
+    "financial_years_covered": "2022-23 to 2025-26",
+    "data_categories_supported": [
+      "Official Budget Estimates",
+      "Revenue vs Capital Split",
+      "Revenue Targets",
+      "Departmental Portals"
+    ],
     "verification_status": "Verified",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Presents proposed annual outlay estimates; post-presentation adjustments by standing committee require separate gazette scrutiny."
+    "last_checked_date": "2026-11-19",
+    "known_limitations": "FY 2025-26 budget estimates (₹12,618.09 Cr) represent proposed allocations; actual execution is reported only after fiscal year closure and statutory audit."
   },
   {
-    "id": "src-pmc-book-202425",
-    "publisher": "Pune Municipal Corporation (PMC)",
+    "id": "src-opencity-pmc-budgets",
+    "publisher": "OpenCity Urban Data Portal / PMC Budget Archives",
     "exact_authority": "Pune Municipal Corporation",
-    "document_title": "PMC Budget Book FY 2024-25 & Open Data Reports",
-    "document_type": "Approved Annual Budget Volume",
-    "official_url": "https://opendata.pmc.gov.in/pmc-reports",
-    "financial_years_covered": "2024-25",
-    "data_categories_supported": ["Budget Estimates (BE)", "Departmental Outlays (Under Review)"],
+    "document_title": "PMC Budgets Dataset (FY 2016-17 to FY 2024-25 PDF/XLSX Archives)",
+    "document_type": "Multi-Year Municipal Budget Repository",
+    "official_url": "https://data.opencity.in/dataset/pmc-budgets",
+    "financial_years_covered": "2016-17 to 2024-25",
+    "data_categories_supported": [
+      "Official Budget Estimates",
+      "Revised Estimates (Select Heads)",
+      "Departmental Schedules"
+    ],
     "verification_status": "Verified / Sub-heads Under Review",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Baseline total municipal outlay of ₹11,601.00 Cr is verified in Summary Table 1. Seven departmental sub-heads are quarantined in review dataset until printed ward schedule references are verified."
+    "last_checked_date": "2026-11-19",
+    "known_limitations": "Baseline consolidated outlays (e.g., ₹11,601 Cr for FY 2024-25) are verified. Seven FY 2024-25 departmental sub-heads remain quarantined pending exact line-item schedule verification."
   },
   {
-    "id": "src-pmc-accounts-202324",
-    "publisher": "Pune Municipal Corporation (PMC)",
+    "id": "src-pmc-audited-pdf",
+    "publisher": "Pune Municipal Corporation — Chief Accounts & Finance Dept.",
     "exact_authority": "Pune Municipal Corporation",
-    "document_title": "PMC Audited Annual Accounts FY 2023-24",
-    "document_type": "Audited Annual Expenditure Statement",
-    "official_url": "https://www.pmc.gov.in/en/budget-overview",
-    "financial_years_covered": "2023-24",
-    "data_categories_supported": ["Actual Expenditure", "Total Municipal Outlay"],
+    "document_title": "PMC Audited Financial Statements & Balance Sheet PDF (FY 2022-23 & FY 2023-24)",
+    "document_type": "Audited Financial Statement",
+    "official_url": "https://opendata.pmc.gov.in/opendata/6f5d15dd-7fd3-4b53-8a01-f85a00848952.pdf",
+    "financial_years_covered": "2022-23, 2023-24",
+    "data_categories_supported": [
+      "Audited Financial Statement",
+      "Actual Expenditure",
+      "Revenue Receipts",
+      "Balance Sheet Measure",
+      "Debt & Liabilities"
+    ],
     "verification_status": "Verified",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Covers completed full-year audited actual outlays; reflects final accounts audited after accounts committee review."
+    "last_checked_date": "2026-11-19",
+    "known_limitations": "Covers audited annual accounts through FY 2023-24 (₹8,125.60 Cr total actual outlay; ₹11,206.84 Cr revenue receipts). Audited full-year actuals for FY 2024-25 & FY 2025-26 are not yet published."
   },
   {
-    "id": "src-bmc-speech-202526",
-    "publisher": "Brihanmumbai Municipal Corporation (BMC / MCGM)",
-    "exact_authority": "Brihanmumbai Municipal Corporation",
-    "document_title": "Budget Estimates A, B & G 2025-26 - Commissioner Speech",
-    "document_type": "Municipal Commissioner & Administrator Budget Speech",
-    "official_url": "https://www.mcgm.gov.in/irj/go/km/docs/documents/MCGM%20Department%20List/Chief%20Accountant%20%28Finance%29/Budget/Budget%20Estimate%202025-2026/1-%20MC%27s%20Speech/BUDGET%20A,B,G/ENGLISH%20SPEECH.pdf",
-    "financial_years_covered": "2025-26 (BE), 2024-25 (RE), 2024-25 (9-Month Actual)",
-    "data_categories_supported": ["Budget Estimates (BE)", "Revised Estimates (RE)", "Capital Expenditure", "Revenue Expenditure", "Revenue Receipts"],
+    "id": "src-pmc-esr",
+    "publisher": "Pune Municipal Corporation — Environment Department",
+    "exact_authority": "Pune Municipal Corporation",
+    "document_title": "PMC Environment Status Report (ESR) — Mandatory Sec. 67A Report",
+    "document_type": "Annual Statutory Environmental & Infrastructure Report",
+    "official_url": "https://www.pmc.gov.in/en/environment-status-report",
+    "financial_years_covered": "2023-24, 2024-25",
+    "data_categories_supported": [
+      "Civic Infrastructure",
+      "Water Supply MLD",
+      "STP Capacity",
+      "Solid Waste TPD"
+    ],
     "verification_status": "Verified",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Page 6 confirms total budget size of ₹74,427.41 Cr covers combined municipal outlay across Funds A, B, E, G, and support to T. Progressive capital actuals (upto 31.12.2024) are 9-month cash outlays, not full-year audited figures."
+    "last_checked_date": "2026-11-19",
+    "known_limitations": "Publishes city-wide environmental indicators (1,400–1,500+ MLD water supply, ~567 MLD STP capacity, 2,200–2,400 TPD waste). Ward-by-ward disaggregated infrastructure logs are limited."
   },
   {
-    "id": "src-bmc-fund-e-202526",
-    "publisher": "Brihanmumbai Municipal Corporation (BMC)",
-    "exact_authority": "Brihanmumbai Municipal Corporation",
-    "document_title": "Budget Estimates Fund E (Education) 2025-26 Speech",
-    "document_type": "Dedicated Fund Budget Document",
-    "official_url": "https://data.opencity.in/dataset/aff7a167-5443-4a30-9709-c182e4b38435/resource/3da8f721-667b-4065-9c3a-6f2a58e9d892/download/bmc-budget-e-english-speech.pdf",
-    "financial_years_covered": "2025-26",
-    "data_categories_supported": ["Budget Estimates (BE)", "Primary Education (Fund E)"],
+    "id": "src-pmc-wards",
+    "publisher": "Pune Municipal Corporation — Election & Ward Administration",
+    "exact_authority": "Pune Municipal Corporation",
+    "document_title": "PMC 15 Regional Ward Offices & 41 Prabhag Delimitation Directory",
+    "document_type": "Administrative Jurisdiction & Boundary Directory",
+    "official_url": "https://www.pmc.gov.in/en/ward-offices",
+    "financial_years_covered": "2022-26",
+    "data_categories_supported": [
+      "Wards & Prabhags",
+      "Administrative Boundaries",
+      "Merged Villages"
+    ],
     "verification_status": "Verified",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Fund E is dedicated solely to civic primary and secondary school education (Fund Code 30)."
+    "last_checked_date": "2026-11-19",
+    "known_limitations": "Maps all 15 PMC Regional Ward Offices and 41 electoral Prabhags. PMC does not publish machine-readable ward-wise actual expenditure tables online."
   },
   {
-    "id": "src-jmc-greater-202223",
-    "publisher": "Greater Jaipur Municipal Corporation (JMC Greater)",
-    "exact_authority": "Greater Jaipur Municipal Corporation",
-    "document_title": "Budget Summary NAGAR NIGAM JAIPUR GREATER 2022-2023",
-    "document_type": "Official Municipal Budget Summary PDF",
-    "official_url": "https://jaipurmc.org/PDF/Budget/Jaipur_Greater_Budget2022-2023.pdf",
-    "financial_years_covered": "2022-23 (Actuals), 2021-22 (Balance Sheet)",
-    "data_categories_supported": ["Revenue Receipts", "Revenue Expenditure", "Capital Expenditure", "Grant Sub-components (Subsumed)"],
+    "id": "src-mahatenders-pmc",
+    "publisher": "Government of Maharashtra / Pune Municipal Corporation",
+    "exact_authority": "Pune Municipal Corporation",
+    "document_title": "Maharashtra e-Procurement Portal (MahaTenders) — PMC Organisation",
+    "document_type": "Official Government E-Procurement Portal",
+    "official_url": "https://mahatenders.gov.in/",
+    "financial_years_covered": "2018-26",
+    "data_categories_supported": [
+      "Tenders & Contracts",
+      "Work Orders",
+      "Contractor Awards"
+    ],
     "verification_status": "Verified",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Amounts printed in Lakhs INR (e.g. 50299 Lacs = ₹502.99 Cr; 52076 Lacs = ₹520.76 Cr; 30084 Lacs = ₹300.84 Cr). Octroi compensation grant of ₹275.00 Cr (27500 Lacs) is already subsumed under total revenue receipts."
-  },
-  {
-    "id": "src-jmc-heritage-202223",
-    "publisher": "Jaipur Heritage Municipal Corporation (JMC Heritage)",
-    "exact_authority": "Jaipur Heritage Municipal Corporation",
-    "document_title": "Jaipur Heritage Annual Financial Statement FY 2022-23",
-    "document_type": "Statutory Annual Financial Statement",
-    "official_url": "https://jaipurmc.org/PDF/Budget/Jaipur_Greater_Budget2022-2023.pdf",
-    "financial_years_covered": "2022-23",
-    "data_categories_supported": ["Deficit Metric (Quarantined)"],
-    "verification_status": "Rejected / Reclassified (Review File)",
-    "last_checked_date": "2026-10-10",
-    "known_limitations": "Jaipur Heritage has an audited ₹42.15 Cr statutory deficit metric in the comparative financial statement. Quarantined in the review file because a deficit cannot be conflated with spending or revenue aggregates."
+    "last_checked_date": "2026-11-19",
+    "known_limitations": "Live NITs and BOQs reside dynamically on mahatenders.gov.in; historical major awarded contracts are documented from Standing Committee & official disclosures."
   }
 ]

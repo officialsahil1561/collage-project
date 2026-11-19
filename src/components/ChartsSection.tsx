@@ -1,118 +1,490 @@
-import React from 'react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from 'recharts';
+import React, { useState, useMemo } from 'react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Cell,
+  Legend
+} from 'recharts';
 import { ReconciledRecord } from '../types';
 import { formatCroresPrecise, formatNormalizedINR } from '../utils/formatters';
+import { dataProvider } from '../services/dataProvider';
+import { AlertTriangle } from 'lucide-react';
 
 interface ChartsSectionProps {
-  authorityName: string;
   records: ReconciledRecord[];
 }
 
-export const ChartsSection: React.FC<ChartsSectionProps> = ({ authorityName, records }) => {
-  // Filter only aggregation-eligible verified records
-  const eligibleRecords = records.filter(r => r.aggregation_eligible);
+export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
+  const [chartTab, setChartTab] = useState<'budget-actual' | 'sectors' | 'revenue'>(
+    'budget-actual'
+  );
+  const [includeQuarantinedDepts, setIncludeQuarantinedDepts] = useState<boolean>(false);
 
-  if (eligibleRecords.length === 0) {
-    return (
-      <div className="bg-white p-6 rounded-2xl border border-[#142B3B]/10 text-center text-xs text-[#142B3B]/50 my-4">
-        No active verified departmental records available for visualization for this authority.
-      </div>
+  const allRecords = useMemo(() => dataProvider.getAllAuditedRecords(), []);
+
+  // 1. Multi-Year Budget Estimate vs Audited Expenditure (FY 2022-23 to FY 2025-26)
+  const multiYearData = useMemo(() => {
+    return [
+      {
+        fy: 'FY 2022-23',
+        be: 9716.0,
+        actual: null as number | null,
+        revExp: 6682.54,
+        revRec: 9425.79,
+        note: 'Standing Committee Final BE ₹9,716 Cr; Audited Revenue Exp ₹6,682.54 Cr'
+      },
+      {
+        fy: 'FY 2023-24',
+        be: 9515.0,
+        actual: 8125.6,
+        revExp: 5910.59,
+        revRec: 11206.84,
+        note: 'Approved BE ₹9,515 Cr vs Audited Total Actual Expenditure ₹8,125.60 Cr (85.4%)'
+      },
+      {
+        fy: 'FY 2024-25',
+        be: 11601.0,
+        actual: null as number | null,
+        revExp: null as number | null,
+        revRec: null as number | null,
+        note: 'Approved BE ₹11,601 Cr; Full-year audited actual expenditure: Data Not Available'
+      },
+      {
+        fy: 'FY 2025-26',
+        be: 12618.09,
+        actual: null as number | null,
+        revExp: null as number | null,
+        revRec: null as number | null,
+        note: 'Proposed BE ₹12,618.09 Cr (₹7,093 Cr Rev + ₹5,524 Cr Cap); Actuals pending fiscal close'
+      }
+    ];
+  }, []);
+
+  // 2. Department & Sector Allocation data
+  const sectorData = useMemo(() => {
+    const verifiedSectors = records.filter(
+      (r) => r.aggregation_eligible && r.domain === 'department'
     );
-  }
 
-  // Format data for chart
-  const data = eligibleRecords.map(r => ({
-    id: r.unique_id,
-    fullName: r.record_or_project_name,
-    shortName: r.record_or_project_name.length > 28 ? r.record_or_project_name.substring(0, 26) + '...' : r.record_or_project_name,
-    amount: r.amount_in_crores,
-    category: r.financial_category,
-    year: r.financial_year,
-    normalized: r.normalized_inr_unit,
-    source: r.document_title
-  }));
+    const quarantinedDepts = allRecords.filter(
+      (r) => !r.aggregation_eligible && r.verification_status === 'Partially Verified'
+    );
 
-  const TEAL_PALETTE = ['#0D9488', '#0f766e', '#14b8a6', '#0369a1', '#0284c7', '#0891b2', '#059669', '#10b981'];
+    const rows =
+      includeQuarantinedDepts && quarantinedDepts.length > 0
+        ? [...verifiedSectors, ...quarantinedDepts]
+        : verifiedSectors;
+
+    return {
+      hasQuarantined: quarantinedDepts.length > 0,
+      quarantinedCount: quarantinedDepts.length,
+      items: rows
+        .slice()
+        .sort((a, b) => b.amount_in_crores - a.amount_in_crores)
+        .map((r) => ({
+          id: r.unique_id,
+          name:
+            r.department_or_sector.length > 28
+              ? r.department_or_sector.substring(0, 26) + '...'
+              : r.department_or_sector,
+          fullName: `${r.record_or_project_name} (${r.department_or_sector})`,
+          amount: r.amount_in_crores,
+          category: r.financial_category,
+          year: r.financial_year,
+          status: r.verification_status,
+          classification: r.source_classification,
+          normalized: r.normalized_inr_unit
+        }))
+    };
+  }, [records, allRecords, includeQuarantinedDepts]);
+
+  // 3. Revenue Targets (FY 25-26 BE) & Property Tax Trend
+  const revenueAnalysis = useMemo(() => {
+    const targets2526 = records
+      .filter((r) => r.domain === 'revenue' && r.financial_year === '2025-26')
+      .sort((a, b) => b.amount_in_crores - a.amount_in_crores)
+      .map((r) => ({
+        id: r.unique_id,
+        label: r.department_or_sector
+          .replace('Department', '')
+          .replace('State & Central ', '')
+          .replace('(GST Compensation)', '(GST)')
+          .trim(),
+        fullName: r.record_or_project_name,
+        amount: r.amount_in_crores,
+        year: r.financial_year
+      }));
+
+    const propertyTaxTrend = [
+      { fy: 'FY 2022-23', amount: 1963.0, type: 'Actual Collection' },
+      { fy: 'FY 2023-24', amount: 2273.0, type: 'Actual Collection' },
+      { fy: 'FY 2024-25', amount: 2360.0, type: 'Actual Collection' },
+      { fy: 'FY 2025-26', amount: 2847.0, type: 'Budgeted Target (BE)' }
+    ];
+
+    return { targets2526, propertyTaxTrend };
+  }, [records]);
+
+  const tabs: Array<{ key: 'budget-actual' | 'sectors' | 'revenue'; label: string }> = [
+    { key: 'budget-actual', label: 'Budget vs Audited Actuals' },
+    { key: 'sectors', label: 'Sector Allocations' },
+    { key: 'revenue', label: 'Revenue & Tax Collection' }
+  ];
 
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-[#142B3B]/10 shadow-xs space-y-3 my-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#142B3B]/10">
-        <div>
-          <h3 className="text-sm sm:text-base font-bold text-[#142B3B]">
-            Verified Financial Outlays & Allocations — {authorityName}
-          </h3>
-          <p className="text-xs text-[#142B3B]/60 mt-0.5">
-            Displays only verified, aggregation-eligible records from primary official documents
+    <section
+      aria-label="Pune Municipal Financial Analysis"
+      className="bg-white rounded-[6px] border border-[#E5E0D5] p-6 space-y-6"
+    >
+      {/* Analytics Header & Mode Switcher */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E0D5]">
+        <div className="pb-4">
+          <h2 className="font-serif text-lg font-semibold text-[#133429] tracking-tight">
+            Pune Municipal Financial Analysis
+          </h2>
+          <p className="text-xs text-[#5A6560] mt-1">
+            Pune Municipal Corporation (PMC) · Accounting stages separated strictly (BE vs Audited Actuals)
           </p>
         </div>
-        <div className="text-[11px] font-semibold text-[#0D9488] bg-[#0D9488]/10 px-2.5 py-1 rounded-md border border-[#0D9488]/20 self-start sm:self-auto">
-          Unit: ₹ Crore (₹1 Cr = 10⁷ INR)
+
+        <div
+          role="tablist"
+          aria-label="Chart views"
+          className="flex items-center gap-6 overflow-x-auto -mb-px"
+        >
+          {tabs.map((tab) => {
+            const isActive = chartTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setChartTab(tab.key)}
+                className={`pb-3.5 text-xs whitespace-nowrap border-b-2 transition-colors duration-150 cursor-pointer ${
+                  isActive
+                    ? 'border-[#0E7C74] text-[#133429] font-semibold'
+                    : 'border-transparent text-[#5A6560] hover:text-[#133429] font-medium'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="h-80 w-full pt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart 
-            data={data} 
-            layout="vertical" 
-            margin={{ top: 5, right: 35, left: 10, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#142B3B" strokeOpacity={0.08} />
-            <XAxis 
-              type="number" 
-              tick={{ fontSize: 11, fill: '#142B3B' }} 
-              tickFormatter={(val) => `₹${val.toLocaleString('en-IN')} Cr`}
-            />
-            <YAxis 
-              dataKey="shortName" 
-              type="category" 
-              tick={{ fontSize: 11, fill: '#142B3B' }} 
-              width={160} 
-            />
-            <Tooltip 
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const d = payload[0].payload;
-                  return (
-                    <div className="bg-white p-3.5 border border-[#142B3B]/15 rounded-xl shadow-lg text-xs space-y-1.5 max-w-xs z-50">
-                      <div className="font-bold text-[#142B3B]">{d.fullName}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">ID: {d.id} · FY {d.year}</div>
-                      <div className="pt-1 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-slate-600 font-medium">Category:</span>
-                        <span className="font-semibold text-[#142B3B]">{d.category}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-600 font-medium">Outlay:</span>
-                        <span className="font-bold font-mono text-[#0D9488]">
-                          {formatCroresPrecise(d.amount)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] text-slate-500">
-                        <span>Normalized:</span>
-                        <span className="font-mono">{formatNormalizedINR(d.normalized)}</span>
-                      </div>
-                      <div className="pt-1 text-[10px] text-slate-400 italic line-clamp-2">
-                        Source: {d.source}
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
-              {data.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={TEAL_PALETTE[index % TEAL_PALETTE.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {/* TAB 1: Multi-Year Budget vs Audited Actuals */}
+      {chartTab === 'budget-actual' && (
+        <div className="space-y-4">
+          <div className="h-[290px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={multiYearData}
+                margin={{ top: 12, right: 24, left: 8, bottom: 8 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E0D5" />
+                <XAxis
+                  dataKey="fy"
+                  tick={{ fontSize: 11, fill: '#1C2422', fontWeight: 600 }}
+                  axisLine={{ stroke: '#E5E0D5' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  width={60}
+                  tick={{ fontSize: 11, fill: '#5A6560' }}
+                  tickFormatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: '#FAF8F3' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const d = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3.5 border border-[#E5E0D5] rounded-[6px] shadow-[0_8px_24px_rgba(19,52,41,0.1)] text-xs space-y-1.5 max-w-xs">
+                          <div className="font-semibold text-[#133429]">{d.fy} — PMC</div>
+                          <div className="flex justify-between gap-4 pt-1 border-t border-[#E5E0D5]">
+                            <span className="text-[#5A6560]">Budget Estimate (BE)</span>
+                            <span className="font-bold font-mono tabular-nums text-[#133429]">
+                              {formatCroresPrecise(d.be)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <span className="text-[#5A6560]">Total Actual Spend</span>
+                            <span className="font-bold font-mono tabular-nums text-[#0E7C74]">
+                              {d.actual !== null ? formatCroresPrecise(d.actual) : 'Data Not Available'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between gap-4">
+                            <span className="text-[#5A6560]">Audited Revenue Exp.</span>
+                            <span className="font-semibold font-mono tabular-nums text-[#5A8F86]">
+                              {d.revExp !== null ? formatCroresPrecise(d.revExp) : 'Data Not Available'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#5A6560] pt-1 leading-snug">{d.note}</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} iconType="square" />
+                <Bar
+                  name="Approved / Proposed BE (₹ Cr)"
+                  dataKey="be"
+                  fill="#133429"
+                  radius={[4, 4, 0, 0]}
+                  barSize={32}
+                />
+                <Bar
+                  name="Audited Total Actual Spend (₹ Cr)"
+                  dataKey="actual"
+                  fill="#0E7C74"
+                  radius={[4, 4, 0, 0]}
+                  barSize={32}
+                />
+                <Bar
+                  name="Audited Revenue Spend (₹ Cr)"
+                  dataKey="revExp"
+                  fill="#6FB3A8"
+                  radius={[4, 4, 0, 0]}
+                  barSize={32}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-      <div className="text-[11px] text-[#142B3B]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-1 border-t border-[#142B3B]/5">
-        <span>* Quarantined review items are strictly excluded from chart visualization.</span>
-        <span>Isolated by Category & Accounting Stage</span>
-      </div>
-    </div>
+          <div className="pt-3 border-t border-[#E5E0D5] flex flex-wrap items-center justify-between gap-3 text-xs text-[#5A6560]">
+            <span>
+              Audited full-year total actual expenditure is verified through FY 2023-24 (₹8,125.60 Cr). FY 2024-25 &amp; FY 2025-26 actuals are marked Data Not Available until published.
+            </span>
+            <span className="font-mono tabular-nums">Unit: ₹ Crore</span>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: Department & Sector Allocation */}
+      {chartTab === 'sectors' && (
+        <div className="space-y-4">
+          {sectorData.hasQuarantined && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[6px] bg-[#B45309]/[0.07] border border-[#B45309]/25 text-xs">
+              <div className="flex items-start gap-2.5 text-[#1C2422]">
+                <AlertTriangle className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  {sectorData.quarantinedCount} FY 2024-25 PMC departmental sub-heads are quarantined as <em>Partially Verified</em> to prevent double-counting against the ₹11,601 Cr consolidated BE.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIncludeQuarantinedDepts((prev) => !prev)}
+                className="h-9 px-3.5 rounded-[6px] bg-white border border-[#E5E0D5] text-xs font-semibold text-[#133429] hover:border-[#B45309]/50 transition-colors whitespace-nowrap shrink-0 cursor-pointer self-start sm:self-auto"
+              >
+                {includeQuarantinedDepts ? 'Hide Quarantined Sub-heads' : 'Overlay Quarantined Sub-heads'}
+              </button>
+            </div>
+          )}
+
+          <div className="h-[320px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={sectorData.items}
+                layout="vertical"
+                margin={{ top: 8, right: 32, left: 8, bottom: 8 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E0D5" />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 11, fill: '#5A6560' }}
+                  tickFormatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`}
+                  axisLine={{ stroke: '#E5E0D5' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  tick={{ fontSize: 11, fill: '#1C2422', fontWeight: 500 }}
+                  width={195}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: '#FAF8F3' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const d = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3.5 border border-[#E5E0D5] rounded-[6px] shadow-[0_8px_24px_rgba(19,52,41,0.1)] text-xs space-y-1.5 max-w-xs">
+                          <div className="font-semibold text-[#1C2422] leading-snug">
+                            {d.fullName}
+                          </div>
+                          <div className="text-[11px] font-mono text-[#5A6560]">
+                            {d.id} · FY {d.year} · {d.status}
+                          </div>
+                          <div className="pt-1.5 border-t border-[#E5E0D5] flex justify-between gap-4">
+                            <span className="text-[#5A6560]">Provision</span>
+                            <span className="font-bold font-mono tabular-nums text-[#0E7C74]">
+                              {formatCroresPrecise(d.amount)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between gap-4 text-[11px] text-[#5A6560]">
+                            <span>INR</span>
+                            <span className="font-mono tabular-nums">
+                              {formatNormalizedINR(d.normalized)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={18}>
+                  {sectorData.items.map((entry) => (
+                    <Cell
+                      key={entry.id}
+                      fill={entry.status === 'Verified' ? '#0E7C74' : '#D97706'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: Revenue Targets & Property Tax Collection */}
+      {chartTab === 'revenue' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Chart A: FY 2025-26 Top Revenue Estimates */}
+          <div className="p-5 rounded-[6px] bg-[#FAF8F3] border border-[#E5E0D5] space-y-3">
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="font-semibold text-[#133429]">
+                FY 2025-26 Budgeted Revenue Streams (BE)
+              </span>
+              <span className="font-mono text-[11px] font-medium text-[#0E7C74] shrink-0">
+                PMC Own &amp; Transfers
+              </span>
+            </div>
+            <div className="h-[240px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={revenueAnalysis.targets2526}
+                  layout="vertical"
+                  margin={{ top: 8, right: 20, left: 4, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E0D5" />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11, fill: '#5A6560' }}
+                    tickFormatter={(v) => `₹${v}`}
+                    axisLine={{ stroke: '#E5E0D5' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    dataKey="label"
+                    type="category"
+                    width={150}
+                    tick={{ fontSize: 11, fill: '#1C2422', fontWeight: 500 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#FFFFFF' }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const d = payload[0].payload;
+                        return (
+                          <div className="bg-white p-3 border border-[#E5E0D5] rounded-[6px] shadow-[0_8px_24px_rgba(19,52,41,0.1)] text-xs space-y-1">
+                            <div className="font-semibold text-[#133429]">{d.fullName}</div>
+                            <div className="font-mono tabular-nums font-bold text-[#0E7C74]">
+                              {formatCroresPrecise(d.amount)}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="amount" fill="#133429" radius={[0, 4, 4, 0]} barSize={22} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[11px] text-[#5A6560] leading-relaxed">
+              Building Permissions (₹2,899 Cr), Property Tax (₹2,847 Cr), and State GST Compensation Grant (₹2,700 Cr) drive PMC municipal receipts.
+            </p>
+          </div>
+
+          {/* Chart B: Property Tax Actuals vs Target */}
+          <div className="p-5 rounded-[6px] bg-[#FAF8F3] border border-[#E5E0D5] space-y-3">
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="font-semibold text-[#133429]">
+                PMC Property Tax Collections (Actuals vs Target)
+              </span>
+              <span className="font-mono text-[11px] font-medium text-[#0E7C74] shrink-0">
+                FY 2022-26
+              </span>
+            </div>
+            <div className="h-[240px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={revenueAnalysis.propertyTaxTrend}
+                  margin={{ top: 12, right: 16, left: 4, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E0D5" />
+                  <XAxis
+                    dataKey="fy"
+                    tick={{ fontSize: 11, fill: '#1C2422', fontWeight: 500 }}
+                    axisLine={{ stroke: '#E5E0D5' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    width={54}
+                    tick={{ fontSize: 11, fill: '#5A6560' }}
+                    tickFormatter={(v) => `₹${v}`}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#FFFFFF' }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const d = payload[0].payload;
+                        return (
+                          <div className="bg-white p-3 border border-[#E5E0D5] rounded-[6px] shadow-[0_8px_24px_rgba(19,52,41,0.1)] text-xs space-y-1">
+                            <div className="font-semibold text-[#133429]">
+                              {d.fy} · {d.type}
+                            </div>
+                            <div className="font-mono tabular-nums font-bold text-[#0E7C74]">
+                              {formatCroresPrecise(d.amount)}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="amount" radius={[4, 4, 0, 0]} barSize={42}>
+                    <Cell fill="#0E7C74" />
+                    <Cell fill="#0E7C74" />
+                    <Cell fill="#0E7C74" />
+                    <Cell fill="#D97706" />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[11px] text-[#5A6560] leading-relaxed">
+              Teal bars show verified actual collections (₹1,963 Cr → ₹2,273 Cr → ₹2,360 Cr); amber bar shows FY 2025-26 BE target (₹2,847 Cr).
+            </p>
+          </div>
+        </div>
+      )}
+    </section>
   );
 };

@@ -1,18 +1,55 @@
 @import "tailwindcss";
 
+@theme {
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
 @layer base {
+  :root {
+    --forest-deep: #133429;
+    --forest-dark: #0E2920;
+    --teal-civic: #0E7C74;
+    --mint-ivory: #E8F2EE;
+    --ivory-canvas: #FAF8F3;
+    --surface-white: #FFFFFF;
+    --charcoal-ink: #1C2422;
+    --muted-slate: #5A6560;
+    --border-stone: #E5E0D5;
+    --amber-audit: #B45309;
+  }
+
   body {
-    background-color: #F8F9F7;
-    color: #142B3B;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #FAF8F3;
+    color: #1C2422;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn {
+    animation: none;
+  }
 }

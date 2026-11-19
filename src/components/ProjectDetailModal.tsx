@@ -1,7 +1,7 @@
 import React from 'react';
 import { Project } from '../types';
 import { formatCroresPrecise } from '../utils/formatters';
-import { X, ExternalLink, MapPin, HardHat, AlertCircle, FileText, Calendar } from 'lucide-react';
+import { X, ExternalLink, MapPin, HardHat, AlertCircle, Building2 } from 'lucide-react';
 
 interface ProjectDetailModalProps {
   project: Project | null;
@@ -12,156 +12,188 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({ project,
   if (!project) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#142B3B]/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#142B3B]/10">
-        
-        {/* Header */}
-        <div className="p-6 sm:p-7 border-b border-[#142B3B]/10 flex items-start justify-between bg-[#F8F9F7] sticky top-0 z-10">
-          <div className="space-y-1.5 pr-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-md bg-[#0D9488]/10 text-[#0D9488] text-xs font-bold border border-[#0D9488]/20">
-                Capital Scheme Outlay
+    <div
+      className="fixed inset-0 z-50 bg-[#0E2920]/65 backdrop-blur-[2px] flex items-center justify-center p-4 animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-[6px] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#E5E0D5]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 py-4 border-b border-[#E5E0D5] flex items-start justify-between bg-[#FAF8F3] sticky top-0 z-10">
+          <div className="space-y-1 pr-4">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-mono font-semibold text-[#0E7C74]">
+                {project.projectCode || project.id}
               </span>
-              <span className="text-xs text-[#142B3B]/60 font-medium">
-                {project.cityName} · FY {project.financialYear}
+              <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+              <span className="font-semibold text-[#133429]">{project.category}</span>
+              <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+              <span className="font-mono tabular-nums text-[#5A6560]">
+                FY {project.financialYear}
               </span>
             </div>
-            <h2 className="text-xl font-bold text-[#142B3B]">{project.name}</h2>
-            <p className="text-xs text-[#142B3B]/70">{project.officialName}</p>
+            <h2 className="font-serif text-lg font-semibold text-[#133429] leading-snug">
+              {project.name}
+            </h2>
+            <p className="text-xs text-[#5A6560]">{project.officialName}</p>
           </div>
-          <button 
+          <button
+            type="button"
             onClick={onClose}
-            className="p-2 text-[#142B3B]/40 hover:text-[#142B3B] rounded-xl hover:bg-[#142B3B]/5 transition-colors shrink-0"
+            className="h-9 w-9 inline-flex items-center justify-center text-[#5A6560] hover:text-[#133429] rounded-[6px] hover:bg-white transition-colors shrink-0 cursor-pointer"
             aria-label="Close project modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content body */}
-        <div className="p-6 sm:p-7 space-y-6 text-sm">
-          
-          {/* Key Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#F8F9F7] p-4 rounded-2xl border border-[#142B3B]/10">
+        <div className="p-6 space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#FAF8F3] p-4 rounded-[6px] border border-[#E5E0D5]">
             <div>
-              <span className="block text-[10px] font-bold text-[#142B3B]/50 uppercase">Officially Recorded Outlay</span>
-              <span className="text-lg font-bold font-mono text-[#142B3B] block">
+              <span className="block text-[11px] font-semibold text-[#5A6560]">
+                Approved / Sanctioned Cost
+              </span>
+              <span className="text-lg font-bold font-mono tabular-nums text-[#133429] block mt-1">
                 {formatCroresPrecise(project.sanctionedCost)}
               </span>
-              <span className="text-[10px] text-[#142B3B]/60 block mt-0.5">
-                {project.costCategory || 'Capital Outlay'}
+              <span className="text-[11px] text-[#5A6560] block mt-0.5">
+                {project.costCategory || 'Sanctioned Cost'}
               </span>
             </div>
+
             <div>
-              <span className="block text-[10px] font-bold text-[#142B3B]/50 uppercase">Physical Progress</span>
-              <span className="text-xs font-semibold text-slate-600 block mt-1.5">
-                {project.physicalProgressPercent !== null && project.physicalProgressPercent !== undefined
-                  ? `${project.physicalProgressPercent}%`
-                  : 'Progress data unavailable in budget document'}
+              <span className="block text-[11px] font-semibold text-[#5A6560]">
+                Revised Cost / Tender
               </span>
-              <span className="text-[10px] text-[#142B3B]/50 block">
-                Not inferred from spend
+              <span className="text-sm font-bold font-mono tabular-nums text-[#1C2422] block mt-1.5">
+                {project.revisedCost !== null && project.revisedCost !== undefined
+                  ? formatCroresPrecise(project.revisedCost)
+                  : project.tenderAmount !== null && project.tenderAmount !== undefined
+                  ? `Tender: ${formatCroresPrecise(project.tenderAmount)}`
+                  : 'Data Not Available'}
+              </span>
+              <span className="text-[11px] text-[#5A6560] block mt-0.5">
+                Expenditure:{' '}
+                {project.reportedExpenditure !== null && project.reportedExpenditure !== undefined
+                  ? formatCroresPrecise(project.reportedExpenditure)
+                  : 'Data Not Available'}
               </span>
             </div>
+
             <div>
-              <span className="block text-[10px] font-bold text-[#142B3B]/50 uppercase">Execution Status</span>
-              <span className="text-xs font-bold text-[#0D9488] block mt-1.5">
+              <span className="block text-[11px] font-semibold text-[#5A6560]">
+                Execution Status
+              </span>
+              <span className="text-xs font-semibold text-[#0E7C74] block mt-1.5">
                 {project.completionStatus}
               </span>
-              <span className="text-[10px] text-[#142B3B]/50 block">
-                Target: {project.expectedCompletionDate || 'Multi-year phase'}
+              <span className="text-[11px] text-[#5A6560] block mt-0.5">
+                Completion:{' '}
+                {project.actualCompletionDate ||
+                  project.expectedCompletionDate ||
+                  'Data Not Available'}
               </span>
             </div>
           </div>
 
-          {/* Implementation & Scope */}
-          <div className="space-y-3 text-xs">
-            <h3 className="text-xs font-bold text-[#142B3B]/50 uppercase tracking-wider">
-              Authority & Location
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="bg-[#F8F9F7] p-3.5 rounded-xl border border-[#142B3B]/10">
-                <span className="text-[#142B3B]/50 block font-semibold">Implementing Authority</span>
-                <span className="font-bold text-[#142B3B] flex items-center gap-1.5 mt-0.5">
-                  <HardHat className="w-4 h-4 text-[#0D9488]" /> {project.agency}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white p-3.5 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] text-[#5A6560] block">Department &amp; Authority</span>
+              <span className="font-semibold text-[#1C2422] flex items-center gap-1.5 mt-1">
+                <HardHat className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+                <span>
+                  {project.department} ({project.agency})
                 </span>
-              </div>
-              <div className="bg-[#F8F9F7] p-3.5 rounded-xl border border-[#142B3B]/10">
-                <span className="text-[#142B3B]/50 block font-semibold">Location / Scope</span>
-                <span className="font-bold text-[#142B3B] flex items-center gap-1.5 mt-0.5">
-                  <MapPin className="w-4 h-4 text-[#0D9488]" /> {project.location}
-                </span>
-              </div>
+              </span>
             </div>
-
-            {project.statusDescription && (
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-[#142B3B]/10">
-                <span className="text-[#142B3B]/50 block font-semibold mb-1">Documented Execution Status</span>
-                <p className="text-[#142B3B] leading-relaxed">
-                  {project.statusDescription}
-                </p>
-              </div>
-            )}
-
-            {project.evidenceLimitations && (
-              <div className="bg-amber-50/70 border border-amber-200/80 p-3.5 rounded-xl text-[#142B3B] space-y-1">
-                <span className="font-bold text-amber-900 flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5" /> Evidence Scope & Limitation
-                </span>
-                <p className="leading-relaxed text-slate-700">
-                  {project.evidenceLimitations}
-                </p>
-              </div>
-            )}
+            <div className="bg-white p-3.5 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] text-[#5A6560] block">Location &amp; Ward Coverage</span>
+              <span className="font-semibold text-[#1C2422] flex items-center gap-1.5 mt-1">
+                <MapPin className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+                <span>{project.location}</span>
+              </span>
+              <span className="text-[11px] text-[#5A6560] block mt-1">{project.wardOrPrabhag}</span>
+            </div>
           </div>
 
-          {/* Primary Source Reference */}
-          <div className="pt-4 border-t border-[#142B3B]/10 space-y-3">
-            <h3 className="text-xs font-bold text-[#142B3B]/50 uppercase tracking-wider">
-              Primary Document Citation
-            </h3>
+          <div className="bg-white p-3.5 rounded-[6px] border border-[#E5E0D5] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span className="text-[11px] text-[#5A6560] block">Contractor / Execution Agency</span>
+              <span className="font-medium text-[#1C2422] flex items-center gap-1.5 mt-1">
+                <Building2 className="w-3.5 h-3.5 text-[#0E7C74] shrink-0" />
+                <span>{project.contractorInfo || 'Data Not Available'}</span>
+              </span>
+            </div>
+            <div>
+              <span className="text-[11px] text-[#5A6560] block">Physical Progress %</span>
+              <span className="font-semibold text-[#B45309] block mt-1">
+                {project.physicalProgressPercent !== null &&
+                project.physicalProgressPercent !== undefined
+                  ? `${project.physicalProgressPercent}%`
+                  : 'Data Not Available (Never inferred from spend)'}
+              </span>
+            </div>
+          </div>
 
-            <div className="bg-[#F8F9F7] p-4 rounded-2xl border border-[#142B3B]/10 space-y-2 text-xs">
+          {project.statusDescription && (
+            <div className="bg-[#FAF8F3] p-4 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] font-semibold text-[#5A6560] block mb-1">
+                Documented Scope &amp; Status
+              </span>
+              <p className="text-[#1C2422] leading-relaxed">{project.statusDescription}</p>
+            </div>
+          )}
+
+          {project.evidenceLimitations && (
+            <div className="bg-[#B45309]/[0.07] border border-[#B45309]/25 p-4 rounded-[6px] space-y-1">
+              <span className="font-semibold text-[#B45309] flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
+                <span>Evidence Scope &amp; Data Limitations</span>
+              </span>
+              <p className="text-[#1C2422] leading-relaxed">{project.evidenceLimitations}</p>
+            </div>
+          )}
+
+          <div className="bg-white p-4 rounded-[6px] border border-[#E5E0D5] space-y-2.5">
+            <div>
+              <span className="text-[11px] text-[#5A6560] block">Primary Source Document</span>
+              <span className="font-semibold text-[#133429] mt-0.5 block">
+                {project.sourceDocumentTitle}
+              </span>
+            </div>
+            {project.sourcePageOrTable && (
               <div>
-                <span className="text-[#142B3B]/50 block font-semibold">Source Title</span>
-                <span className="font-bold text-[#142B3B]">{project.sourceDocumentTitle}</span>
+                <span className="text-[11px] text-[#5A6560] block">Page / Table Reference</span>
+                <span className="text-[#1C2422] mt-0.5 block">{project.sourcePageOrTable}</span>
               </div>
-              {project.sourcePageOrTable && (
-                <div>
-                  <span className="text-[#142B3B]/50 block font-semibold">Schedule / Page Reference</span>
-                  <span className="font-medium text-[#142B3B]">{project.sourcePageOrTable}</span>
-                </div>
-              )}
-              <div className="pt-1">
-                <a 
-                  href={project.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[#0D9488] font-bold hover:underline"
-                >
-                  <span>Open Primary Source in New Tab</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
+            )}
+            <div className="pt-1">
+              <a
+                href={project.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[#0E7C74] hover:text-[#133429] font-semibold transition-colors"
+              >
+                <span>Open Official PMC Source</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
-
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-4 sm:p-5 bg-[#F8F9F7] border-t border-[#142B3B]/10 flex items-center justify-between text-xs">
-          <span className="text-slate-500">
-            No inferred progress · Traceable capital allocations
+        <div className="px-6 py-3.5 bg-[#FAF8F3] border-t border-[#E5E0D5] flex items-center justify-between text-xs">
+          <span className="text-[#5A6560]">
+            Pune Municipal Corporation · Missing metrics marked Data Not Available
           </span>
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-[#142B3B] text-white rounded-xl font-medium hover:bg-[#142B3B]/90 transition-colors"
+            className="h-9 px-4 bg-[#133429] hover:bg-[#0E2920] text-[#FAF8F3] rounded-[6px] font-medium transition-colors cursor-pointer"
           >
             Close
           </button>
         </div>
-
       </div>
     </div>
   );

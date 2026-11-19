@@ -1,265 +1,383 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { dataProvider } from '../services/dataProvider';
-import { ExternalLink, Database, ShieldCheck, AlertCircle, BookOpen, CheckCircle2, FileText, Download, AlertTriangle } from 'lucide-react';
+import {
+  ExternalLink,
+  ShieldCheck,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight
+} from 'lucide-react';
 
-export const SourcesAuditPage: React.FC = () => {
+interface SourcesAuditPageProps {
+  initialSubTab?: 'registry' | 'reconciliation' | 'methodology';
+  onOpenRecords?: () => void;
+}
+
+export const SourcesAuditPage: React.FC<SourcesAuditPageProps> = ({
+  initialSubTab = 'registry',
+  onOpenRecords
+}) => {
   const sources = dataProvider.getSourceRegistry();
   const metrics = dataProvider.getReconciliationMetrics();
-  const [activeTab, setActiveTab] = useState<'registry' | 'methodology' | 'reconciliation'>('registry');
+  const [activeTab, setActiveTab] = useState<'registry' | 'reconciliation' | 'methodology'>(
+    initialSubTab
+  );
+  const [expandedSourceId, setExpandedSourceId] = useState<string | null>(null);
+  const [expandedDecisionIdx, setExpandedDecisionIdx] = useState<number | null>(0);
+  const [expandedMethodKey, setExpandedMethodKey] = useState<string | null>('classification');
+
+  useEffect(() => {
+    setActiveTab(initialSubTab);
+  }, [initialSubTab]);
+
+  const auditDecisions = [
+    {
+      title: '1. FY 2024-25 PMC Departmental Sub-heads (7 Records: PMC_202425_BE_003 to 008, 030)',
+      status: 'Partially Verified · Quarantined',
+      detail:
+        'Quarantined in review dataset (₹5,336.40 Cr across Water, Roads, SWM, Drainage, Health, Education, and Parks). Excluded from active spending aggregates to prevent double-counting against the consolidated FY 2024-25 PMC budget outlay of ₹11,601.00 Cr (PMC_202425_BE_002).'
+    },
+    {
+      title: '2. FY 2022-23 Commissioner Draft Budget (PMC_202223_BE_033 — ₹8,592.00 Cr)',
+      status: 'Rejected / Subsumed · Quarantined',
+      detail:
+        'Commissioner initial draft estimate (₹8,592.00 Cr) was superseded by the Standing Committee final approved budget of ₹9,716.00 Cr (PMC_202223_BE_011). Quarantined so FY 2022-23 budget totals are never counted twice.'
+    },
+    {
+      title: '3. FY 2023-24 Own-Source Revenue Component (PMC_202324_REC_034 — ₹10,632.15 Cr)',
+      status: 'Rejected / Subsumed · Quarantined',
+      detail:
+        'Audited own-source receipts (₹10,632.15 Cr) are already included inside Audited Total Revenue Receipts of ₹11,206.84 Cr (PMC_202324_REC_020 = ₹10,632.15 Cr own + ₹574.69 Cr grants). Quarantined to prevent double counting.'
+    },
+    {
+      title: '4. Balance Sheet Stock & Municipal Bond Debt (PMC_202324_BAL_035 & DEBT_036)',
+      status: 'Rejected / Reclassified · Quarantined',
+      detail:
+        'Total Balance Sheet Size (₹52,698.00 Cr) and Outstanding BSE Municipal Bond Liability (₹200.00 Cr) from PMC Audited Financial Statements are stock measures, not annual revenue or expenditure flows, and are therefore separated from annual spending totals.'
+    },
+    {
+      title: '5. Strict Municipal Boundary Isolation (PMC Exclusive Scope)',
+      status: 'Verified · Enforced',
+      detail:
+        'This platform exclusively tracks Pune Municipal Corporation (PMC). Shared regional entities such as PMPML are strictly isolated to PMC’s statutory 60% municipal share (₹484.96 Cr VGF + ₹23.11 Cr pass concessions); PCMC, Pune Cantonment, Khadki Cantonment, and non-PMC PMRDA outlays are completely excluded.'
+    }
+  ];
 
   return (
-    <div className="space-y-6 animate-fadeIn max-w-7xl mx-auto pb-16">
-      
-      {/* Title */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#142B3B] tracking-tight">
-          About the Data — Sources, Methodology & Audit Ledger
-        </h1>
-        <p className="text-xs sm:text-sm text-[#142B3B]/70 mt-1">
-          Explore how JanDhan Insights extracts, verifies, and audits municipal finance records across Pune, Mumbai, Greater Jaipur, and Jaipur Heritage.
+    <div className="space-y-6 animate-fadeIn">
+      {/* Sub-navigation Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <p className="text-xs sm:text-sm text-[#5A6560]">
+          Primary Pune Municipal Corporation (PMC) publications, audit reconciliation decisions, and source classification rules.
         </p>
+
+        <div className="flex items-center h-9 gap-0.5 p-1 bg-white border border-[#E5E0D5] rounded-[6px] self-start sm:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveTab('registry')}
+            className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
+              activeTab === 'registry'
+                ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                : 'text-[#5A6560] hover:text-[#133429] font-medium'
+            }`}
+          >
+            PMC Sources ({sources.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('reconciliation')}
+            className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
+              activeTab === 'reconciliation'
+                ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                : 'text-[#5A6560] hover:text-[#133429] font-medium'
+            }`}
+          >
+            Audit Report ({metrics.total})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('methodology')}
+            className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
+              activeTab === 'methodology'
+                ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                : 'text-[#5A6560] hover:text-[#133429] font-medium'
+            }`}
+          >
+            Methodology
+          </button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#142B3B]/10 pb-2 text-xs font-semibold">
-        <button
-          onClick={() => setActiveTab('registry')}
-          className={`px-3 py-1.5 rounded-lg transition-all ${
-            activeTab === 'registry'
-              ? 'bg-[#142B3B] text-white shadow-xs'
-              : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Primary Source Registry ({sources.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('reconciliation')}
-          className={`px-3 py-1.5 rounded-lg transition-all ${
-            activeTab === 'reconciliation'
-              ? 'bg-[#0D9488] text-white shadow-xs'
-              : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Reconciliation Audit Report (30 Records)
-        </button>
-        <button
-          onClick={() => setActiveTab('methodology')}
-          className={`px-3 py-1.5 rounded-lg transition-all ${
-            activeTab === 'methodology'
-              ? 'bg-[#142B3B] text-white shadow-xs'
-              : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Financial Methodology & Definitions
-        </button>
-      </div>
-
-      {/* 1. Primary Source Registry Tab */}
+      {/* 1. Primary Source Registry */}
       {activeTab === 'registry' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sources.map(src => (
-              <div 
-                key={src.id}
-                className="bg-white rounded-2xl border border-[#142B3B]/10 shadow-xs p-6 space-y-4 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="text-[10px] font-bold text-[#0D9488] uppercase tracking-wider block">
-                        {src.exact_authority}
+        <div className="bg-white rounded-[6px] border border-[#E5E0D5] divide-y divide-[#E5E0D5] overflow-hidden">
+          {sources.map((src) => {
+            const isExpanded = expandedSourceId === src.id;
+            const isVerified = src.verification_status === 'Verified';
+            return (
+              <div key={src.id} className="p-6 space-y-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="font-semibold text-[#0E7C74]">{src.exact_authority}</span>
+                      <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+                      <span className="font-mono tabular-nums text-[#5A6560]">
+                        FY {src.financial_years_covered}
                       </span>
-                      <h3 className="text-base font-bold text-[#142B3B] mt-0.5">
-                        {src.document_title}
-                      </h3>
-                      <p className="text-xs text-slate-500">{src.document_type}</p>
+                      <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+                      <span className="font-mono tabular-nums text-[#5A6560]">
+                        Checked {src.last_checked_date}
+                      </span>
+                      <span aria-hidden="true" className="text-[#D4CEC2]">·</span>
+                      <span
+                        className={`inline-flex items-center gap-1 font-semibold ${
+                          isVerified ? 'text-[#0E7C74]' : 'text-[#B45309]'
+                        }`}
+                      >
+                        {isVerified ? (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        ) : (
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#D97706]" />
+                        )}
+                        <span>{src.verification_status}</span>
+                      </span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
-                      {src.verification_status}
+
+                    <h2 className="font-serif text-base font-semibold text-[#133429]">
+                      {src.document_title}
+                    </h2>
+                    <div className="text-xs text-[#5A6560]">
+                      {src.document_type} · {src.data_categories_supported.join(', ')}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedSourceId(isExpanded ? null : src.id)}
+                      className="h-9 inline-flex items-center gap-1.5 px-3 rounded-[6px] border border-[#E5E0D5] bg-[#FAF8F3] hover:bg-white text-xs font-medium text-[#1C2422] transition-colors duration-150 cursor-pointer"
+                    >
+                      <span>Known Limitations</span>
+                      {isExpanded ? (
+                        <ChevronUp className="w-3.5 h-3.5 text-[#5A6560]" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5 text-[#5A6560]" />
+                      )}
+                    </button>
+                    <a
+                      href={src.official_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-9 inline-flex items-center gap-1.5 px-3.5 rounded-[6px] bg-[#133429] hover:bg-[#0E2920] text-[#FAF8F3] text-xs font-semibold transition-colors duration-150"
+                    >
+                      <span>Open Official Source</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div className="p-4 rounded-[6px] bg-[#FAF8F3] border border-[#E5E0D5] text-xs space-y-1 animate-fadeIn">
+                    <span className="font-semibold text-[#B45309] block">
+                      Scope &amp; Limitations
                     </span>
+                    <p className="leading-relaxed text-[#5A6560]">{src.known_limitations}</p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs bg-[#F8F9F7] p-3 rounded-xl border border-[#142B3B]/5">
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Years Covered</span>
-                      <span className="font-semibold text-slate-800">{src.financial_years_covered}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Checked Date</span>
-                      <span className="font-mono text-slate-800">{src.last_checked_date}</span>
-                    </div>
-                  </div>
-
-                  <div className="text-xs space-y-1.5">
-                    <div>
-                      <span className="font-semibold text-slate-600 block">Categories Covered:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {src.data_categories_supported.map((cat, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">
-                            {cat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="pt-2 text-[11px] text-slate-600 bg-amber-50/50 p-2.5 rounded-lg border border-amber-200/50 leading-relaxed">
-                      <span className="font-bold text-amber-900 block mb-0.5">Known Limitations:</span>
-                      {src.known_limitations}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-[#142B3B]/10 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Primary Official Publication</span>
-                  <a
-                    href={src.official_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[#0D9488] font-bold hover:underline"
-                  >
-                    <span>Open Official Document</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                </div>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
 
-      {/* 2. Reconciliation Audit Report Tab */}
+      {/* 2. Reconciliation Audit Report */}
       {activeTab === 'reconciliation' && (
-        <div className="space-y-5 bg-white p-6 rounded-2xl border border-[#142B3B]/10 shadow-xs">
-          
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-[#142B3B]">
-              Master Reconciliation Audit Summary (All 30 Records)
-            </h2>
-            <p className="text-xs text-slate-500">
-              Audit results calculated directly from final synchronized datasets.
-            </p>
-          </div>
-
-          {/* Metric Badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-400 block font-bold text-[10px] uppercase">Total Audited Records</span>
-              <span className="text-2xl font-bold font-mono text-[#142B3B]">{metrics.total}</span>
-              <span className="text-[10px] text-slate-500 block">30 unique IDs</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#5A6560] block">
+                Total PMC Records
+              </span>
+              <span className="text-2xl font-bold font-mono tabular-nums text-[#133429] block mt-1">
+                {metrics.total}
+              </span>
+              <span className="text-xs text-[#5A6560] block mt-0.5">Unique PMC IDs</span>
             </div>
-            <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-              <span className="text-emerald-700 block font-bold text-[10px] uppercase">Active Verified</span>
-              <span className="text-2xl font-bold font-mono text-emerald-800">{metrics.verified}</span>
-              <span className="text-[10px] text-emerald-600 block">Eligible for aggregates</span>
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#0E7C74] block">
+                Active Verified
+              </span>
+              <span className="text-2xl font-bold font-mono tabular-nums text-[#0E7C74] block mt-1">
+                {metrics.verified}
+              </span>
+              <span className="text-xs text-[#5A6560] block mt-0.5">Aggregation-eligible</span>
             </div>
-            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
-              <span className="text-amber-700 block font-bold text-[10px] uppercase">Review & Quarantined</span>
-              <span className="text-2xl font-bold font-mono text-amber-800">{metrics.review}</span>
-              <span className="text-[10px] text-amber-600 block">Excluded from spending totals</span>
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#B45309] block">
+                Quarantined
+              </span>
+              <span className="text-2xl font-bold font-mono tabular-nums text-[#D97706] block mt-1">
+                {metrics.review}
+              </span>
+              <span className="text-xs text-[#5A6560] block mt-0.5">Excluded from totals</span>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-400 block font-bold text-[10px] uppercase">Authorities Audited</span>
-              <span className="text-2xl font-bold font-mono text-[#0D9488]">{metrics.authoritiesCount}</span>
-              <span className="text-[10px] text-slate-500 block">PMC, BMC, JMC Greater & Heritage</span>
-            </div>
-          </div>
-
-          {/* Detailed Decision Table */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <h3 className="text-sm font-bold text-[#142B3B]">Audit Target Decisions & Evidence Findings</h3>
-            <div className="space-y-2 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <span className="font-bold text-slate-800 block">1. Pune Departmental Sub-heads (7 Records: PMC_202425_BE_003 to 008, 030)</span>
-                <p className="text-slate-600 leading-relaxed">
-                  <strong>Decision:</strong> Quarantined in review file as <em>Partially Verified</em> (₹5,336.40 Cr total across sub-heads). Excluded from active totals to prevent double-counting with PMC's total municipal outlay of ₹11,601.00 Cr (PMC_202425_BE_002).
-                </p>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <span className="font-bold text-slate-800 block">2. BMC Actual Expenditure (BMC_202324_ACT_023)</span>
-                <p className="text-slate-600 leading-relaxed">
-                  <strong>Decision:</strong> Quarantined in review file as <em>Unverified</em> (₹18,281.78 Cr). Figure cited in speech comparative table; withheld until formal audited CAG / Local Fund balance sheet is published.
-                </p>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <span className="font-bold text-slate-800 block">3. BMC Total Budget Scope (BMC_202526_BE_010)</span>
-                <p className="text-slate-600 leading-relaxed">
-                  <strong>Decision:</strong> Verified and active (₹74,427.41 Cr). Confirmed on Page 6 of BMC Commissioner Speech PDF: explicitly covers combined municipal budget outlay across Funds A, B, E, G, and support to T.
-                </p>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <span className="font-bold text-slate-800 block">4. Jaipur Octroi Grant Subsumption (JMC_GR_202223_ACT_029)</span>
-                <p className="text-slate-600 leading-relaxed">
-                  <strong>Decision:</strong> Quarantined as <em>Rejected / Subsumed</em>. Account Head 1202001 (₹275.00 Cr octroi compensation) is already included in JMC Greater Total Revenue Receipts (₹502.99 Cr). Excluded to prevent double counting.
-                </p>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <span className="font-bold text-slate-800 block">5. Jaipur Balance Sheet Metric (JMC_GR_202122_ACT_027)</span>
-                <p className="text-slate-600 leading-relaxed">
-                  <strong>Decision:</strong> Quarantined as <em>Rejected / Reclassified</em>. Metric of ₹1,110.06 Cr represents cumulative balance-sheet assets and liabilities, not public expenditure or revenue flows.
-                </p>
-              </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                <span className="font-bold text-slate-800 block">6. Jaipur Heritage Deficit Metric (JMC_HER_202223_ACT_028)</span>
-                <p className="text-slate-600 leading-relaxed">
-                  <strong>Decision:</strong> Quarantined as <em>Rejected / Reclassified</em>. Metric of ₹42.15 Cr represents an accounting deficit on income and expenditure, not total municipal spending outflow.
-                </p>
-              </div>
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5]">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[#5A6560] block">
+                Scope Authority
+              </span>
+              <span className="text-2xl font-bold font-mono tabular-nums text-[#133429] block mt-1">
+                PMC Only
+              </span>
+              <span className="text-xs text-[#5A6560] block mt-0.5">Pune Municipal Corp.</span>
             </div>
           </div>
 
+          <div className="bg-white rounded-[6px] border border-[#E5E0D5] divide-y divide-[#E5E0D5] overflow-hidden">
+            <div className="px-6 py-4 flex items-center justify-between bg-[#FAF8F3]">
+              <h2 className="font-serif text-base font-semibold text-[#133429]">
+                PMC Reconciliation Audit Decisions (5 Key Findings)
+              </h2>
+              {onOpenRecords && (
+                <button
+                  type="button"
+                  onClick={onOpenRecords}
+                  className="text-xs font-semibold text-[#0E7C74] hover:text-[#133429] inline-flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <span>Open Full {metrics.total}-Record Ledger</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {auditDecisions.map((item, idx) => {
+              const isOpen = expandedDecisionIdx === idx;
+              return (
+                <div key={item.title} className="p-5">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedDecisionIdx(isOpen ? null : idx)}
+                    className="w-full flex items-center justify-between gap-4 text-left cursor-pointer"
+                  >
+                    <div className="min-w-0">
+                      <span className="text-[13px] font-semibold text-[#1C2422] block">
+                        {item.title}
+                      </span>
+                      <span className="text-xs text-[#5A6560] mt-0.5 block">{item.status}</span>
+                    </div>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-[#5A6560] shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-[#5A6560] shrink-0" />
+                    )}
+                  </button>
+                  {isOpen && (
+                    <p className="mt-3 pt-3 border-t border-[#E5E0D5] text-xs text-[#5A6560] leading-relaxed">
+                      {item.detail}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {/* 3. Methodology Tab */}
+      {/* 3. Methodology */}
       {activeTab === 'methodology' && (
-        <div className="bg-white p-6 rounded-2xl border border-[#142B3B]/10 shadow-xs space-y-6 text-xs text-slate-700 leading-relaxed">
-          <div className="space-y-2">
-            <h2 className="text-base font-bold text-[#142B3B]">
-              Financial Accounting Categories & Principles
-            </h2>
-            <p>
-              Municipal public finances follow statutory accounting standards governed by State Municipal Acts. JanDhan Insights strictly preserves standard financial categories:
-            </p>
-          </div>
-
+        <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-              <h3 className="font-bold text-[#142B3B]">Budget Estimates (BE)</h3>
-              <p>
-                The planned financial allocation presented by the Municipal Commissioner before the commencement of the financial year. A BE is a spending authorization, not money actually spent.
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] space-y-1.5">
+              <h2 className="font-serif text-base font-semibold text-[#133429]">
+                Official Budget Estimate (BE)
+              </h2>
+              <p className="text-xs text-[#5A6560] leading-relaxed">
+                Proposed or approved financial allocation for the upcoming fiscal year (e.g., PMC FY 2025-26 ₹12,618.09 Cr). It is a spending ceiling, never actual disbursement.
               </p>
             </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-              <h3 className="font-bold text-[#142B3B]">Revised Estimates (RE)</h3>
-              <p>
-                Mid-year adjusted expenditure projections formulated by the administration based on progressive tax receipts and actual works execution up to that point.
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] space-y-1.5">
+              <h2 className="font-serif text-base font-semibold text-[#133429]">
+                Revised Estimate (RE)
+              </h2>
+              <p className="text-xs text-[#5A6560] leading-relaxed">
+                Mid-year updated projections formulated by municipal finance departments. Where RE lines are unpublished in open tables, we display Data Not Available.
               </p>
             </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-              <h3 className="font-bold text-[#142B3B]">Actual Expenditure</h3>
-              <p>
-                Money officially disbursed and recorded in audited annual accounts. Actuals are published with a reporting lag following statutory audit by the State Local Fund Audit / CAG.
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] space-y-1.5">
+              <h2 className="font-serif text-base font-semibold text-[#133429]">
+                Audited Financial Statement
+              </h2>
+              <p className="text-xs text-[#5A6560] leading-relaxed">
+                Statutory annual accounts &amp; balance sheet audited through FY 2023-24 (₹8,125.60 Cr actual spend, ₹11,206.84 Cr revenue receipts) published on PMC Open Data.
               </p>
             </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-              <h3 className="font-bold text-[#142B3B]">Revenue Receipts vs Capital Outlays</h3>
-              <p>
-                Revenue receipts are recurring municipal income (property taxes, octroi compensation, water fees). Capital outlays represent long-term infrastructure assets. They are never summed together.
+            <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] space-y-1.5">
+              <h2 className="font-serif text-base font-semibold text-[#133429]">
+                Data Not Available vs Zero Policy
+              </h2>
+              <p className="text-xs text-[#5A6560] leading-relaxed">
+                Missing expenditure figures, contractor names, ward budgets, or project completion dates are explicitly labeled Data Not Available — zero is never substituted for missing disclosures.
               </p>
             </div>
           </div>
 
-          <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950 space-y-1">
-            <div className="font-bold flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-700" />
-              <span>Currency Normalization Rule</span>
+          <div className="bg-white rounded-[6px] border border-[#E5E0D5] divide-y divide-[#E5E0D5] overflow-hidden">
+            <div className="p-5">
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandedMethodKey(
+                    expandedMethodKey === 'classification' ? null : 'classification'
+                  )
+                }
+                className="w-full flex items-center justify-between text-left cursor-pointer"
+              >
+                <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#133429]">
+                  <ShieldCheck className="w-4 h-4 text-[#0E7C74]" />
+                  <span>6-Tier Source Classification Standard</span>
+                </span>
+                {expandedMethodKey === 'classification' ? (
+                  <ChevronUp className="w-4 h-4 text-[#5A6560]" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#5A6560]" />
+                )}
+              </button>
+              {expandedMethodKey === 'classification' && (
+                <p className="mt-3 pt-3 border-t border-[#E5E0D5] text-xs text-[#5A6560] leading-relaxed">
+                  Every record carries an explicit classification tag: Official Budget Estimate, Revised Estimate, Actual Expenditure, Audited Financial Statement, Internally Reconciled, or Unverified / Under Review. Internally reconciled records are never labeled as independently audited unless backed by PMC’s audited financial statement PDF.
+                </p>
+              )}
             </div>
-            <p>
-              All amounts printed in Crore INR are programmatically converted into normalized INR currency units using the exact relation ₹1 Crore = 10,000,000 INR (10⁷). Lakhs are converted at ₹1 Lakh = 100,000 INR (10⁵).
-            </p>
+
+            <div className="p-5">
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandedMethodKey(
+                    expandedMethodKey === 'normalization' ? null : 'normalization'
+                  )
+                }
+                className="w-full flex items-center justify-between text-left cursor-pointer"
+              >
+                <span className="text-[13px] font-semibold text-[#133429]">
+                  Currency Normalization &amp; Double-Count Quarantine Rules
+                </span>
+                {expandedMethodKey === 'normalization' ? (
+                  <ChevronUp className="w-4 h-4 text-[#5A6560]" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-[#5A6560]" />
+                )}
+              </button>
+              {expandedMethodKey === 'normalization' && (
+                <p className="mt-3 pt-3 border-t border-[#E5E0D5] text-xs text-[#5A6560] leading-relaxed">
+                  All PMC Crore figures convert strictly at ₹1 Crore = 10,000,000 INR (10⁷). Quarantined sub-heads, subsumed draft budgets, subsumed own-source revenue components, balance-sheet stocks, and bond principal liabilities carry aggregation_eligible: false so they remain inspectable without inflating aggregate totals.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };

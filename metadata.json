@@ -1,6 +1,6 @@
 {
   "name": "JanDhan Insights",
-  "description": "Traceable municipal budget and public spending records across Pune Municipal Corporation, Brihanmumbai Municipal Corporation, Greater Jaipur Municipal Corporation, and Jaipur Heritage Municipal Corporation.",
+  "description": "Pune Municipal Finance & Civic Intelligence: Traceable budgets, audited accounts, revenue, departments, projects, wards, and procurement records exclusively for Pune Municipal Corporation (PMC).",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
