@@ -4,6 +4,15 @@ An independent civic finance and urban infrastructure transparency platform cove
 
 ---
 
+## Academic Documentation & Technical Audit
+- **[PROJECT_AUDIT.md](./PROJECT_AUDIT.md)**: Academic technical audit and data provenance record.
+- **[DATA_DICTIONARY.md](./DATA_DICTIONARY.md)**: Precise definitions of financial categories, verification statuses, and civic metrics.
+- **[DATA_SOURCES.md](./DATA_SOURCES.md)**: Official catalog of government budget books, PDF statements, and open data portals.
+- **[DATA_METHODOLOGY.md](./DATA_METHODOLOGY.md)**: Normalization protocols, double-count isolation (quarantine), and null-versus-zero policies.
+- **[DATA_LIMITATIONS.md](./DATA_LIMITATIONS.md)**: Transparent discussion of unclosed fiscal years, ward actual spending availability, and citizen feedback simulation.
+
+---
+
 ## Key Features & Civic Modules
 
 - **Home & Pune Landmark Carousel:** Full-width rotating showcase of 12 Pune civic and heritage landmarks with Wikimedia Commons attribution, keyboard/hover controls, and offline-safe local fallbacks.
@@ -18,7 +27,7 @@ An independent civic finance and urban infrastructure transparency platform cove
   3. **Roads & Development Tracker:** FY 2026-27 `₹1,800 Cr` urban mobility outlay, 65 km missing links, `₹400 Cr` land acquisition, and `₹85 Cr` model footpaths.
   4. **Public Facilities Explorer:** 96 Arogyavardhini clinics & PMC hospitals, 20 operational fire stations (+5 planned), PMC primary/secondary schools, and municipal parks.
   5. **Environment Dashboard:** PMC Environment Status Report (ESR 2024-25) air quality monitoring, Mula-Mutha river pollution abatement, waste processing (`~2,400 TPD`), and `5.78 lakh+` recorded trees.
-- **Citizen Desk (Preserved):** Guided **Civic Complaints (PMC CARE)** category assistant and **Citizen Feedback & Corrections** submission portal.
+- **Citizen Desk:** Guided **Civic Complaints (PMC CARE)** category assistant and **Citizen Feedback & Corrections** local draft submission portal.
 
 ---
 

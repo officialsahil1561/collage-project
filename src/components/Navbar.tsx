@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, ChevronDown, Building2, MapPin } from 'lucide-react';
 import {
   NAV_GROUPS,
   NavGroupKey,
@@ -191,6 +191,40 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </button>
 
+          {/* Location Selector: Pune Municipal Corporation vs Loni Kalbhor */}
+          <div
+            role="group"
+            aria-label="Select Civic Jurisdiction"
+            className="hidden sm:inline-flex items-center p-0.5 rounded-[6px] bg-[#FAF8F3] border border-[#E5E0D5] text-xs font-semibold shrink-0"
+          >
+            <button
+              type="button"
+              onClick={() => handleSelect('home')}
+              className={`h-7 px-2.5 rounded-[4px] inline-flex items-center gap-1.5 transition-all cursor-pointer ${
+                normalizedActive !== 'loni-kalbhor'
+                  ? 'bg-[#133429] text-[#FAF8F3] shadow-xs'
+                  : 'text-[#5A6560] hover:text-[#133429]'
+              }`}
+              title="Pune Municipal Corporation (516+ sq.km urban municipal jurisdiction)"
+            >
+              <Building2 className="w-3 h-3 text-[#E9A23B]" />
+              <span>PMC Pune</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelect('loni-kalbhor')}
+              className={`h-7 px-2.5 rounded-[4px] inline-flex items-center gap-1.5 transition-all cursor-pointer ${
+                normalizedActive === 'loni-kalbhor'
+                  ? 'bg-[#0E7C74] text-white shadow-xs'
+                  : 'text-[#5A6560] hover:text-[#133429]'
+              }`}
+              title="Loni Kalbhor (Haveli Taluka rural & Gram Panchayat jurisdiction)"
+            >
+              <MapPin className="w-3 h-3 text-[#E9A23B]" />
+              <span>Loni Kalbhor</span>
+            </button>
+          </div>
+
           {/* Middle Zone: Clean 5-Item Desktop Navigation */}
           <nav
             ref={navRef}
@@ -374,7 +408,40 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              {/* Mobile Location Selector */}
+              <div className="p-2 bg-[#FAF8F3] border border-[#E5E0D5] rounded-[6px] space-y-1.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5A6560] block px-1">
+                  Select Jurisdiction
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleSelect('home')}
+                    className={`h-8 px-2 rounded-[4px] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      normalizedActive !== 'loni-kalbhor'
+                        ? 'bg-[#133429] text-[#FAF8F3]'
+                        : 'bg-white text-[#5A6560] border border-[#E5E0D5]'
+                    }`}
+                  >
+                    <Building2 className="w-3 h-3 text-[#E9A23B]" />
+                    <span>PMC Pune</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelect('loni-kalbhor')}
+                    className={`h-8 px-2 rounded-[4px] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      normalizedActive === 'loni-kalbhor'
+                        ? 'bg-[#0E7C74] text-white'
+                        : 'bg-white text-[#5A6560] border border-[#E5E0D5]'
+                    }`}
+                  >
+                    <MapPin className="w-3 h-3 text-[#E9A23B]" />
+                    <span>Loni Kalbhor</span>
+                  </button>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => handleSelect('home')}

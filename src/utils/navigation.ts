@@ -54,6 +54,13 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         description: '12 Pune citywide civic infrastructure sectors',
         path: '/explore/infrastructure',
         group: 'explore'
+      },
+      {
+        key: 'loni-kalbhor',
+        label: 'Loni Kalbhor (Rural)',
+        description: 'Haveli Taluka rural & semi-urban civic intelligence platform',
+        path: '/explore/loni-kalbhor',
+        group: 'explore'
       }
     ]
   },
@@ -190,7 +197,9 @@ const ALL_NAV_ITEMS: NavItemConfig[] = NAV_GROUPS.flatMap((g) => g.items);
 const ALIAS_TO_CANONICAL: Record<string, string> = {
   home: 'home',
   overview: 'finances',
-  spending: 'records'
+  spending: 'records',
+  'loni-kalbhor': 'loni-kalbhor',
+  lonikalbhor: 'loni-kalbhor'
 };
 
 export function normalizePageKey(pageKey: string): string {

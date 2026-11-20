@@ -402,7 +402,7 @@ const aliasesOk =
 assert(
   '15. Header Dropdown Grouping, Direct URLs & Breadcrumbs',
   NAV_GROUPS.length === 4 &&
-    allNavItems.length === 19 &&
+    allNavItems.length === 20 &&
     routeRoundTripsOk &&
     aliasesOk,
   `4 dropdown menus covering all ${allNavItems.length} pages, direct URL round-trip routing, aliases, and breadcrumbs verified.`
@@ -437,12 +437,40 @@ assert(
   '5 financial years derived dynamically from verified records; FY 23-24 actuals (₹8,125.60 Cr / 85.4%) verified; unpublished actuals preserved as null.'
 );
 
+// 17. Loni Kalbhor Integration & Jurisdictional Separation Test
+const lkProfile = dataProvider.getLoniKalbhorProfile();
+const lkDemographics = dataProvider.getLoniKalbhorDemographics();
+const lkWaters = dataProvider.getLoniKalbhorWaterFacilities();
+const lkRoads = dataProvider.getLoniKalbhorRoads();
+const lkFacilities = dataProvider.getLoniKalbhorFacilities();
+const lkProjects = dataProvider.getLoniKalbhorProjects();
+const lkFinance = dataProvider.getLoniKalbhorFinanceRecords();
+const lkSources = dataProvider.getLoniKalbhorSources();
+
+const lkValid =
+  lkProfile.censusCode === '556123' &&
+  lkProfile.taluka === 'Haveli' &&
+  lkDemographics.totalPopulation === 27814 &&
+  lkWaters.length >= 3 &&
+  lkRoads.length >= 3 &&
+  lkFacilities.length >= 5 &&
+  lkProjects.length >= 3 &&
+  lkFinance.length >= 4 &&
+  lkSources.length >= 5 &&
+  lkProfile.governingBody.includes('Gram Panchayat');
+
+assert(
+  '17. Loni Kalbhor Integration & Jurisdictional Separation',
+  lkValid,
+  'Loni Kalbhor administrative profile, Census 2011 demographics, water, roads, facilities, projects, finance and sources verified separate from PMC.'
+);
+
 console.log('\n=================================================================');
 const passedCount = results.filter((r) => r.passed).length;
 const totalCount = results.length;
-console.log(`TOTAL PMC AUDIT TEST SUITE: ${passedCount}/${totalCount} TESTS PASSED.`);
+console.log(`TOTAL AUDIT TEST SUITE: ${passedCount}/${totalCount} TESTS PASSED.`);
 if (passedCount === totalCount) {
-  console.log('🎉 ALL PMC AUDIT & RECONCILIATION ASSERTIONS CONFIRMED.');
+  console.log('🎉 ALL AUDIT & RECONCILIATION ASSERTIONS CONFIRMED.');
 } else {
   process.exit(1);
 }

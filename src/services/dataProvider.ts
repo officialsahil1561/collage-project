@@ -46,6 +46,14 @@ import {
   PUNE_LANDMARK_SLIDES,
   CITIZEN_GLOSSARY_TERMS
 } from '../data/pmcCivicSectionsData';
+import { LONI_KALBHOR_PROFILE } from '../data/loniKalbhor/villageProfile';
+import { LONI_KALBHOR_DEMOGRAPHICS } from '../data/loniKalbhor/demographics';
+import { LONI_KALBHOR_WATER_FACILITIES } from '../data/loniKalbhor/waterSanitation';
+import { LONI_KALBHOR_ROADS } from '../data/loniKalbhor/roadsTransport';
+import { LONI_KALBHOR_FACILITIES } from '../data/loniKalbhor/publicFacilities';
+import { LONI_KALBHOR_PROJECTS } from '../data/loniKalbhor/developmentProjects';
+import { LONI_KALBHOR_FINANCE_RECORDS } from '../data/loniKalbhor/localFinance';
+import { LONI_KALBHOR_SOURCES } from '../data/loniKalbhor/sources';
 
 export const dataProvider = {
   /**
@@ -619,6 +627,31 @@ export const dataProvider = {
       );
     }
     return lines.join('\n');
+  },
+
+  getLoniKalbhorProfile() {
+    return LONI_KALBHOR_PROFILE;
+  },
+  getLoniKalbhorDemographics() {
+    return LONI_KALBHOR_DEMOGRAPHICS;
+  },
+  getLoniKalbhorWaterFacilities() {
+    return [...LONI_KALBHOR_WATER_FACILITIES];
+  },
+  getLoniKalbhorRoads() {
+    return [...LONI_KALBHOR_ROADS];
+  },
+  getLoniKalbhorFacilities() {
+    return [...LONI_KALBHOR_FACILITIES];
+  },
+  getLoniKalbhorProjects() {
+    return [...LONI_KALBHOR_PROJECTS];
+  },
+  getLoniKalbhorFinanceRecords() {
+    return [...LONI_KALBHOR_FINANCE_RECORDS];
+  },
+  getLoniKalbhorSources() {
+    return [...LONI_KALBHOR_SOURCES];
   }
 };
 

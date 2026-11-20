@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jandhan-insights.vercel.app/sitemap.xml

@@ -25,6 +25,7 @@ import { SpendingPage } from './pages/SpendingPage';
 import { SourcesAuditPage } from './pages/SourcesAuditPage';
 import { CivicComplaintsPage } from './pages/CivicComplaintsPage';
 import { CitizenFeedbackPage } from './pages/CitizenFeedbackPage';
+import { LoniKalbhorPage } from './pages/LoniKalbhorPage';
 import { dataProvider } from './services/dataProvider';
 import {
   getBreadcrumbsForPage,
@@ -34,7 +35,7 @@ import {
   resolvePageFromPathname
 } from './utils/navigation';
 
-const EXPLORE_PAGES = ['projects', 'wards', 'tenders', 'infrastructure'];
+const EXPLORE_PAGES = ['projects', 'wards', 'tenders', 'infrastructure', 'loni-kalbhor'];
 const FINANCE_PAGES = ['finances', 'budget', 'revenue-expenditure', 'departments', 'records'];
 const CIVIC_SERVICES_PAGES = [
   'water-sanitation',
@@ -142,7 +143,8 @@ export function App() {
                 { key: 'projects', label: 'Public Projects (8)' },
                 { key: 'wards', label: 'Ward Explorer (15 · 41)' },
                 { key: 'tenders', label: 'Tenders & Contracts (5)' },
-                { key: 'infrastructure', label: 'Civic Infrastructure (12)' }
+                { key: 'infrastructure', label: 'Civic Infrastructure (12)' },
+                { key: 'loni-kalbhor', label: 'Loni Kalbhor (Rural)' }
               ]}
               activeTab={activePage}
               onSelectTab={navigateTo}
@@ -154,6 +156,7 @@ export function App() {
               {activePage === 'wards' && <WardsPage />}
               {activePage === 'tenders' && <TendersPage />}
               {activePage === 'infrastructure' && <InfrastructurePage />}
+              {activePage === 'loni-kalbhor' && <LoniKalbhorPage />}
             </div>
           </>
         )}

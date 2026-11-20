@@ -19,7 +19,8 @@ import {
   MessageSquareWarning,
   MessageSquarePlus,
   Trees,
-  Building2
+  Building2,
+  MapPin
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -163,6 +164,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       targetPage: 'tenders'
     },
     {
+      icon: MapPin,
+      title: 'Loni Kalbhor (Rural)',
+      subtitle: 'Haveli Taluka Gram Panchayat Intelligence',
+      targetPage: 'loni-kalbhor'
+    },
+    {
       icon: BookOpen,
       title: 'Official Data Sources',
       subtitle: 'PMC Portal, OpenCity & Audited PDFs',
@@ -179,6 +186,45 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         latestFY={summary.latestFinancialYear}
         onNavigate={navigate}
       />
+
+      {/* 1A. JURISDICTION SELECTOR BANNER */}
+      <section className="bg-white border-b border-[#E5E0D5] py-5">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="p-4 sm:p-5 rounded-[8px] bg-[#FAF8F3] border border-[#E5E0D5] flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0E7C74] block">
+                Select Civic Jurisdiction
+              </span>
+              <h2 className="font-serif text-base font-semibold text-[#133429]">
+                Explore authenticated civic and financial transparency datasets
+              </h2>
+              <p className="text-xs text-[#5A6560]">
+                Strict jurisdictional separation between urban municipal corporation data (PMC) and rural Gram Panchayat records (Loni Kalbhor).
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => navigate('finances')}
+                className="h-9 px-4 rounded-[6px] bg-[#133429] text-[#FAF8F3] hover:bg-[#0E2920] text-xs font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer shadow-xs"
+              >
+                <Building2 className="w-3.5 h-3.5 text-[#E9A23B]" />
+                <span>Pune Municipal Corporation (PMC)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('loni-kalbhor')}
+                className="h-9 px-4 rounded-[6px] bg-white border border-[#0E7C74] text-[#0E7C74] hover:bg-[#E8F2EE] text-xs font-semibold inline-flex items-center gap-2 transition-colors cursor-pointer shadow-xs"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#E9A23B]" />
+                <span>Loni Kalbhor (Gram Panchayat)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* 2. IMAGE-BASED FEATURE SECTION (3 Rectangular Pune Photographic Cards) */}
       <section className="bg-[#FAF8F3] py-16 lg:py-20 border-b border-[#E5E0D5]">
