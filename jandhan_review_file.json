@@ -284,5 +284,31 @@
     "verification_status": "Rejected / Reclassified",
     "aggregation_eligible": false,
     "exclusion_reason": "Debt liability stock metric excluded from annual expenditure flow aggregates."
+  },
+  {
+    "unique_id": "PMC_202627_BE_043",
+    "city": "Pune",
+    "exact_authority": "Pune Municipal Corporation",
+    "financial_year": "2026-27",
+    "domain": "budget",
+    "record_type": "Commissioner Draft Budget (Superseded)",
+    "department_or_sector": "Total Municipal Outlay",
+    "record_or_project_name": "PMC Commissioner Draft Budget Estimate FY 2026-27 (Naval Kishore Ram)",
+    "amount_as_printed": "13,995.00",
+    "original_unit": "Crore INR",
+    "normalized_inr_unit": 139950000000,
+    "amount_in_crores": 13995,
+    "financial_category": "Budget Estimates (BE)",
+    "source_classification": "Internally Reconciled",
+    "document_title": "PMC Municipal Commissioner Draft Budget Statement FY 2026-27",
+    "official_document_url": "https://www.pmc.gov.in/en/budget-overview",
+    "page_or_table_ref": "Commissioner Draft Budget Tabling Summary (11% over FY 2025-26)",
+    "publication_date": "2026-03-04",
+    "date_accessed": "2026-11-19",
+    "extraction_note": "Initial FY 2026-27 Commissioner draft budget tabled before Standing Committee expansion.",
+    "reason_for_quarantine": "Superseded by Standing Committee Final Budget PMC_202627_BE_039 (₹15,669.00 Cr). Quarantined as Rejected / Subsumed to prevent duplicate FY 2026-27 BE totals.",
+    "verification_status": "Rejected / Subsumed",
+    "aggregation_eligible": false,
+    "exclusion_reason": "Superseded by Standing Committee final FY 2026-27 budget PMC_202627_BE_039 (₹15,669.00 Cr)."
   }
 ]

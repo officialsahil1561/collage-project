@@ -7,6 +7,12 @@ export type VerificationStatus =
   | 'Rejected / Reclassified'
   | 'Rejected / Subsumed';
 
+export type StandardVerificationBadge =
+  | 'Verified'
+  | 'Under Review'
+  | 'Estimated'
+  | 'Unavailable';
+
 export type FinancialCategory =
   | 'Budget Estimates (BE)'
   | 'Revised Estimates (RE)'
@@ -59,7 +65,11 @@ export type FinancialRecord = ReconciledRecord;
 export interface DepartmentProfile {
   id: string;
   name: string;
-  category: 'Core Infrastructure' | 'Civic Services & Environment' | 'Social & Welfare' | 'Revenue & Administration';
+  category:
+    | 'Core Infrastructure'
+    | 'Civic Services & Environment'
+    | 'Social & Welfare'
+    | 'Revenue & Administration';
   description: string;
   latestAllocationCrores: number | null;
   latestAllocationFY: string | null;
@@ -102,7 +112,11 @@ export interface Project {
   expectedCompletionDate?: string | null;
   actualCompletionDate?: string | null;
   physicalProgressPercent?: number | null;
-  completionStatus: 'Under Construction' | 'Operational / Completed' | 'Tender Stage' | 'Approved in Budget';
+  completionStatus:
+    | 'Under Construction'
+    | 'Operational / Completed'
+    | 'Tender Stage'
+    | 'Approved in Budget';
   statusDescription?: string;
   contractorInfo?: string | null;
   sourceUrl: string;
@@ -128,6 +142,21 @@ export interface WardOffice {
   officialUrl: string;
 }
 
+export interface PrabhagRecord {
+  prabhagNumber: number;
+  code: string;
+  name: string;
+  wardOfficeId: string;
+  wardOfficeName: string;
+  zone: string;
+  localities: string[];
+  includesMergedVillages: boolean;
+  keyLandmarksOrFacilities: string[];
+  linkedProjectIds: string[];
+  wardBudgetStatus: 'Unavailable';
+  verificationBadge: StandardVerificationBadge;
+}
+
 export interface TenderContract {
   id: string;
   tenderRef: string;
@@ -140,7 +169,11 @@ export interface TenderContract {
   contractDate: string | null;
   workOrderStatus: string;
   completionCertificateStatus: string;
-  contractStatus: 'Awarded / Active' | 'Re-tendered & Awarded' | 'Notice Inviting Tender (NIT) Referenced' | 'Pending Portal Lookup';
+  contractStatus:
+    | 'Awarded / Active'
+    | 'Re-tendered & Awarded'
+    | 'Notice Inviting Tender (NIT) Referenced'
+    | 'Pending Portal Lookup';
   sourceTitle: string;
   sourceUrl: string;
   verificationStatus: VerificationStatus;
@@ -172,6 +205,98 @@ export interface CivicAssetIndicator {
   reportingYear: string;
 }
 
+export interface WaterTreatmentPlant {
+  id: string;
+  name: string;
+  sourceDam: string;
+  capacityMLD: number | null;
+  capacityLabel: string;
+  zonesServed: string;
+  status: string;
+  verificationBadge: StandardVerificationBadge;
+  sourceUrl: string;
+}
+
+export interface SewageTreatmentPlant {
+  id: string;
+  name: string;
+  program: 'Existing PMC STP' | 'JICA Mula-Mutha (11 New STPs)';
+  capacityMLD: number;
+  wardOrLocality: string;
+  status: string;
+  verificationBadge: StandardVerificationBadge;
+  sourceUrl: string;
+}
+
+export interface RoadDevelopmentItem {
+  id: string;
+  title: string;
+  type: 'Flyover & Grade Separator' | 'Arterial & Missing Links' | 'Mobility & Transit' | 'Footpath & Land Acquisition';
+  department: string;
+  wardOrCorridor: string;
+  sanctionedOrBudgetedCrores: number | null;
+  budgetStage: string;
+  financialYear: string;
+  status: string;
+  timelineNote: string;
+  verificationBadge: StandardVerificationBadge;
+  sourceTitle: string;
+  sourceUrl: string;
+  notes: string;
+}
+
+export interface PublicFacilityCategory {
+  id: string;
+  category:
+    | 'Hospitals & Clinics'
+    | 'Municipal Schools'
+    | 'Parks & Gardens'
+    | 'Fire Stations'
+    | 'Public Toilets'
+    | 'Community Centres';
+  department: string;
+  documentedCountLabel: string;
+  verificationBadge: StandardVerificationBadge;
+  summary: string;
+  notableLocations: string[];
+  dataGapNote: string;
+  sourceTitle: string;
+  sourceUrl: string;
+}
+
+export interface EnvironmentIndicatorItem {
+  id: string;
+  domain: 'Solid Waste Management' | 'River & Water Ecology' | 'Urban Greenery & Biodiversity' | 'Air & Noise Monitoring';
+  title: string;
+  metricValue: string;
+  reportingCycle: string;
+  verificationBadge: StandardVerificationBadge;
+  details: string;
+  sourceTitle: string;
+  sourceUrl: string;
+}
+
+export interface PuneLandmarkSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  description: string;
+  imageUrl: string;
+  fallbackAssetKey: 'shaniwarWadaHero' | 'agaKhanPalaceCard' | 'puneInfrastructureCard' | 'puneHeritageStreetCard';
+  creditLabel: string;
+  creditUrl: string;
+  targetPage: string;
+  ctaLabel: string;
+}
+
+export interface CitizenGlossaryTerm {
+  term: string;
+  shortCode: string;
+  plainExplanation: string;
+  pmcExample: string;
+}
+
 export interface AuthoritySummary {
   authorityKey: 'pune-pmc';
   authorityName: MunicipalAuthority;
@@ -179,6 +304,7 @@ export interface AuthoritySummary {
   stateName: 'Maharashtra';
   latestFinancialYear: string;
   totalBudgetBE: number;
+  previousYearBE2526: number;
   revenueBudgetBE: number;
   capitalBudgetBE: number;
   previousYearBE: number;
@@ -223,3 +349,23 @@ export interface FilterState {
   verificationStatus: string;
   searchQuery: string;
 }
+
+export interface FiveYearExpenditurePoint {
+  financialYear: string;
+  fyLabel: string;
+  approvedBudgetBE: number;
+  yoyBudgetGrowthPct: number | null;
+  auditedTotalExpenditure: number | null;
+  utilizationPct: number | null;
+  auditedRevenueExpenditure: number | null;
+  budgetedRevenueExpenditure: number | null;
+  budgetedCapitalExpenditure: number | null;
+  auditedRevenueReceipts: number | null;
+  stageLabel: string;
+  auditStatus: 'Audited Actuals Available' | 'Audited Revenue Exp. Only' | 'BE Only — Actuals Not Available';
+  primaryRecordId: string;
+  sourceRecordIds: string[];
+  sourceUrl: string;
+  notes: string;
+}
+

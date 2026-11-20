@@ -1,10 +1,13 @@
 import React from 'react';
 import { ReconciledRecord, Project } from '../types';
 import { StatsCards } from '../components/StatsCards';
+import { ExpenditureTrendsDashboard } from '../components/ExpenditureTrendsDashboard';
 import { ChartsSection } from '../components/ChartsSection';
+import { CitizenGlossaryBar } from '../components/CitizenGlossaryBar';
+import { VerificationBadge } from '../components/VerificationBadge';
+import { toStandardVerificationBadge } from '../data/pmcCivicSectionsData';
 import {
   ExternalLink,
-  CheckCircle2,
   ArrowRight,
   MapPin,
   ShieldCheck
@@ -28,12 +31,12 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   const projects = dataProvider.getProjects();
 
   const sectorHighlights = [
+    { label: 'Urban Mobility & Roads', amount: 1800.0, fy: '2026-27', note: '65 km Missing Links' },
     { label: 'Water Supply', amount: 1665.0, fy: '2025-26', note: '24x7 Supply & WTPs' },
     { label: 'Town Planning & Schemes', amount: 1630.0, fy: '2025-26', note: 'AMRUT, PMAY & DP' },
     { label: 'Merged Villages', amount: 623.0, fy: '2025-26', note: 'Basic Infrastructure' },
-    { label: 'Public Health', amount: 516.05, fy: '2024-25', note: 'Hospitals & 96 Clinics' },
     { label: 'Transport (PMC Share)', amount: 508.07, fy: '2025-26', note: 'PMPML VGF & Passes' },
-    { label: 'Land & SWM Capital', amount: 305.4, fy: '2025 / 24', note: '₹200 Cr Land + ₹105.4 Cr SWM' }
+    { label: 'Land Acquisition', amount: 400.0, fy: '2026-27', note: 'Road Widening & DP' }
   ];
 
   return (
@@ -80,6 +83,15 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         onViewRevenue={() => setActiveTab('revenue-expenditure')}
       />
 
+      {/* Plain-Language Budget Glossary for Citizens */}
+      <CitizenGlossaryBar />
+
+      {/* 1A. 5-Year Municipal Expenditure & Budget Outlay Trends Dashboard (Recharts) */}
+      <ExpenditureTrendsDashboard
+        onSelectRecord={onSelectRecord}
+        onViewBudgetTracker={() => setActiveTab('budget')}
+      />
+
       {/* 1B. Verified Major Sector Breakdown Strip */}
       <section
         aria-label="Verified Sectoral Provisions"
@@ -91,7 +103,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               Verified Sectoral Budget Provisions (PMC)
             </h2>
             <p className="text-xs text-[#5A6560]">
-              Selected verified heads from official budget statements (Roads ₹1,420 Cr sub-head remains quarantined under Departments)
+              Selected verified heads from official budget statements (FY 2024-25 sub-heads &amp; FY 2026-27 initial Commissioner draft remain quarantined)
             </p>
           </div>
           <button
@@ -175,9 +187,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                     <div className="text-[13px] font-mono tabular-nums font-bold text-[#133429]">
                       {formatPrintedWithUnit(rec.amount_as_printed, rec.original_unit)}
                     </div>
-                    <div className="inline-flex items-center justify-end gap-1 text-[11px] font-medium text-[#0E7C74]">
-                      <CheckCircle2 className="w-3 h-3 shrink-0" />
-                      <span>{rec.source_classification}</span>
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="text-[11px] text-[#5A6560]">{rec.source_classification}</span>
+                      <VerificationBadge status={toStandardVerificationBadge(rec.verification_status)} />
                     </div>
                   </div>
                 </button>
@@ -270,8 +282,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </section>
       </div>
 
-      {/* 3. Large Analytics Section Below */}
-      <ChartsSection records={verifiedRecords} />
+      {/* 3. Sectoral & Revenue Analytics Section Below */}
+      <ChartsSection records={verifiedRecords} defaultTab="sectors" />
     </div>
   );
 };

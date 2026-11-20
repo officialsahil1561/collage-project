@@ -13,11 +13,13 @@ import {
 interface SourcesAuditPageProps {
   initialSubTab?: 'registry' | 'reconciliation' | 'methodology';
   onOpenRecords?: () => void;
+  hideSubNav?: boolean;
 }
 
 export const SourcesAuditPage: React.FC<SourcesAuditPageProps> = ({
   initialSubTab = 'registry',
-  onOpenRecords
+  onOpenRecords,
+  hideSubNav = false
 }) => {
   const sources = dataProvider.getSourceRegistry();
   const metrics = dataProvider.getReconciliationMetrics();
@@ -62,53 +64,61 @@ export const SourcesAuditPage: React.FC<SourcesAuditPageProps> = ({
       status: 'Verified · Enforced',
       detail:
         'This platform exclusively tracks Pune Municipal Corporation (PMC). Shared regional entities such as PMPML are strictly isolated to PMC’s statutory 60% municipal share (₹484.96 Cr VGF + ₹23.11 Cr pass concessions); PCMC, Pune Cantonment, Khadki Cantonment, and non-PMC PMRDA outlays are completely excluded.'
+    },
+    {
+      title: '6. FY 2026-27 Commissioner Draft Budget (PMC_202627_BE_043 — ₹13,995.00 Cr)',
+      status: 'Rejected / Subsumed · Quarantined',
+      detail:
+        'Commissioner Naval Kishore Ram’s initial FY 2026-27 draft budget (₹13,995.00 Cr) was superseded by the Standing Committee final approved budget of ₹15,669.00 Cr (PMC_202627_BE_039). Quarantined to ensure FY 2026-27 total outlay is never double-counted.'
     }
   ];
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Sub-navigation Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <p className="text-xs sm:text-sm text-[#5A6560]">
-          Primary Pune Municipal Corporation (PMC) publications, audit reconciliation decisions, and source classification rules.
-        </p>
+      {/* Sub-navigation Bar (hidden when unified PageSectionHeader renders top tabs) */}
+      {!hideSubNav && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <p className="text-xs sm:text-sm text-[#5A6560]">
+            Primary Pune Municipal Corporation (PMC) publications, audit reconciliation decisions, and source classification rules.
+          </p>
 
-        <div className="flex items-center h-9 gap-0.5 p-1 bg-white border border-[#E5E0D5] rounded-[6px] self-start sm:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => setActiveTab('registry')}
-            className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
-              activeTab === 'registry'
-                ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
-                : 'text-[#5A6560] hover:text-[#133429] font-medium'
-            }`}
-          >
-            PMC Sources ({sources.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('reconciliation')}
-            className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
-              activeTab === 'reconciliation'
-                ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
-                : 'text-[#5A6560] hover:text-[#133429] font-medium'
-            }`}
-          >
-            Audit Report ({metrics.total})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('methodology')}
-            className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
-              activeTab === 'methodology'
-                ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
-                : 'text-[#5A6560] hover:text-[#133429] font-medium'
-            }`}
-          >
-            Methodology
-          </button>
+          <div className="flex items-center h-9 gap-0.5 p-1 bg-white border border-[#E5E0D5] rounded-[6px] self-start sm:self-auto shrink-0">
+            <button
+              type="button"
+              onClick={() => setActiveTab('registry')}
+              className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                activeTab === 'registry'
+                  ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                  : 'text-[#5A6560] hover:text-[#133429] font-medium'
+              }`}
+            >
+              PMC Sources ({sources.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('reconciliation')}
+              className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                activeTab === 'reconciliation'
+                  ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                  : 'text-[#5A6560] hover:text-[#133429] font-medium'
+              }`}
+            >
+              Audit Report ({metrics.total})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('methodology')}
+              className={`h-7 px-3 rounded-[4px] text-xs whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                activeTab === 'methodology'
+                  ? 'bg-[#133429] text-[#FAF8F3] font-semibold'
+                  : 'text-[#5A6560] hover:text-[#133429] font-medium'
+              }`}
+            >
+              Methodology
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 1. Primary Source Registry */}
       {activeTab === 'registry' && (
@@ -237,7 +247,7 @@ export const SourcesAuditPage: React.FC<SourcesAuditPageProps> = ({
           <div className="bg-white rounded-[6px] border border-[#E5E0D5] divide-y divide-[#E5E0D5] overflow-hidden">
             <div className="px-6 py-4 flex items-center justify-between bg-[#FAF8F3]">
               <h2 className="font-serif text-base font-semibold text-[#133429]">
-                PMC Reconciliation Audit Decisions (5 Key Findings)
+                PMC Reconciliation Audit Decisions (6 Key Findings)
               </h2>
               {onOpenRecords && (
                 <button
@@ -293,7 +303,7 @@ export const SourcesAuditPage: React.FC<SourcesAuditPageProps> = ({
                 Official Budget Estimate (BE)
               </h2>
               <p className="text-xs text-[#5A6560] leading-relaxed">
-                Proposed or approved financial allocation for the upcoming fiscal year (e.g., PMC FY 2025-26 ₹12,618.09 Cr). It is a spending ceiling, never actual disbursement.
+                Proposed or approved financial allocation for the upcoming fiscal year (e.g., PMC FY 2026-27 Standing Committee Final BE ₹15,669.00 Cr). It is a spending ceiling, never actual disbursement.
               </p>
             </div>
             <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] space-y-1.5">

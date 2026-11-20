@@ -1,94 +1,61 @@
-# JanDhan Insights — Municipal Finance Data Reconciliation & Audit Report
+# JanDhan Insights — Pune Municipal Corporation (PMC) Data Reconciliation & Audit Report
 
-**Date:** 2026-10-10  
-**Scope:** Reconcile and audit 30 primary municipal finance records across four distinct municipal corporations.  
-**Auditor:** Senior Full-Stack Engineer, Financial-Data Auditor & Civic-Tech UI Designer  
-
----
-
-## 1. Executive Summary
-
-Every one of the 30 target records supplied from the Gemini municipal finance dataset has been audited, categorized, mathematically normalized, and assigned an unambiguous verification status:
-
-| Dataset File | Record Count | Description |
-|:---|:---:|:---|
-| `jandhan_municipal_finance_verified.json` | **19** | Active, verified records eligible for category-isolated public spending summaries. |
-| `jandhan_municipal_finance_verified.csv` | **19** | Tabular synchronized CSV representation with exact matching columns and normalized INR values. |
-| `jandhan_review_file.json` | **11** | Quarantined records kept out of active spending totals with explicit audit reasons. |
-| `jandhan_source_registry.json` | **7** | Primary source citations with official URLs, retrieval timestamps, and known limitations. |
-| **Total Unique Records** | **30** | Exactly 30 unique IDs accounted for. Zero duplicates. Zero overlaps. Zero omissions. |
+**Scope:** Exclusively Pune Municipal Corporation (PMC), Pune, Maharashtra, India  
+**Financial Years Covered:** FY 2022-23 through FY 2026-27  
+**Last Audited:** 2026-11-19  
 
 ---
 
-## 2. Municipal Authority Separation
+## 1. Executive Audit Summary
 
-All four authorities are strictly maintained as independent civic bodies:
-1. **Pune Municipal Corporation (PMC)** — 3 Active Verified, 7 Quarantined in Review.
-2. **Brihanmumbai Municipal Corporation (BMC)** — 13 Active Verified, 1 Quarantined in Review.
-3. **Greater Jaipur Municipal Corporation (JMC Greater)** — 3 Active Verified, 2 Quarantined in Review.
-4. **Jaipur Heritage Municipal Corporation (JMC Heritage)** — 0 Active Verified, 1 Quarantined in Review (Statutory Deficit Metric).
-
----
-
-## 3. Specific Audit Decisions & Evidence Reconciliations
-
-### 1. Pune Departmental Allocations (7 Records: `PMC_202425_BE_003` to `PMC_202425_BE_008` & `PMC_202425_BE_030`)
-- **Action:** Held in `jandhan_review_file.json` under status **Partially Verified**.
-- **Reason:** Departmental sub-head provisions (Water Supply ₹1,245.50 Cr, Roads ₹1,420.00 Cr, Waste ₹850.25 Cr, Drainage ₹620.10 Cr, Health ₹480.00 Cr, Education ₹510.40 Cr, Parks ₹210.15 Cr) require printed ward schedule confirmation. Quarantined to prevent double-counting with PMC's baseline total outlay of ₹11,601.00 Cr (`PMC_202425_BE_002`).
-
-### 2. BMC Actual Capital Expenditure (`BMC_202324_ACT_023`)
-- **Action:** Held in `jandhan_review_file.json` under status **Unverified**.
-- **Reason:** Amount of ₹18,281.78 Cr is cited in a speech comparative table. Withheld from verified aggregates until a formal audited CAG or Local Fund Audit balance sheet is published.
-
-### 3. BMC Total Budget Scope (`BMC_202526_BE_010`)
-- **Action:** Verified and active in `verified.json` (₹74,427.41 Cr).
-- **Evidence:** Verified against Page 6 of the Municipal Commissioner Speech PDF: explicitly covers combined budget outlays across Funds A (City), B (Improvement), E (Education), G (Water & Sewerage), and financial support to T (Transport/BEST).
-
-### 4. Jaipur Octroi Grant Subsumption (`JMC_GR_202223_ACT_029`)
-- **Action:** Quarantined in `jandhan_review_file.json` as **Rejected / Subsumed**.
-- **Reason:** Account Head 1202001 (₹275.00 Cr octroi compensation) is already included in JMC Greater's Total Revenue Receipts of ₹502.99 Cr (`JMC_GR_202223_ACT_024`). Quarantined to prevent double-counting.
-
-### 5. Jaipur Balance-Sheet Metric (`JMC_GR_202122_ACT_027`)
-- **Action:** Quarantined as **Rejected / Reclassified**.
-- **Reason:** Amount of ₹1,110.06 Cr represents cumulative balance-sheet assets and liabilities. Stock assets cannot be added to expenditure or revenue cash flows.
-
-### 6. Jaipur Heritage Deficit Metric (`JMC_HER_202223_ACT_028`)
-- **Action:** Quarantined as **Rejected / Reclassified**.
-- **Reason:** Metric of ₹42.15 Cr represents an accounting deficit on income and expenditure, not total municipal spending outflow.
+| Metric | Value | Notes |
+|---|---:|---|
+| **Authority Covered** | **Pune Municipal Corporation (PMC)** | Strictly excludes PCMC, Pune/Khadki Cantonments, and non-PMC PMRDA works |
+| **Total Reconciled Financial Records** | **43** | Zero duplicate IDs; 100% schema validated |
+| **Active Verified Records (`aggregation_eligible: true`)** | **31** | Stored in `jandhan_municipal_finance_verified.json` & `.csv` |
+| **Quarantined Review Records (`aggregation_eligible: false`)** | **12** | Stored in `jandhan_review_file.json` to prevent double counting |
+| **Primary Official Sources Registered** | **6** | Stored in `jandhan_source_registry.json` |
+| **Administrative Coverage** | **15 Regional Ward Offices · 41 Prabhags** | Mapped across 5 DMC Zones from `pmc.gov.in` |
 
 ---
 
-## 4. Master Status Ledger
+## 2. Headline PMC Financial Figures (Verified)
 
-| # | Unique ID | Authority | Financial Year | Amount (₹ Cr) | Category | Audit Status | Dataset Placement |
-|:--|:---|:---|:---:|:---:|:---|:---|:---|
-| 1 | `PMC_202526_BE_001` | PMC | 2025-26 | 12,618.09 | Budget Estimates (BE) | Verified | `jandhan_municipal_finance_verified` |
-| 2 | `PMC_202425_BE_002` | PMC | 2024-25 | 11,601.00 | Budget Estimates (BE) | Verified | `jandhan_municipal_finance_verified` |
-| 3 | `PMC_202425_BE_003` | PMC | 2024-25 | 1,245.50 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
-| 4 | `PMC_202425_BE_004` | PMC | 2024-25 | 1,420.00 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
-| 5 | `PMC_202425_BE_005` | PMC | 2024-25 | 850.25 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
-| 6 | `PMC_202425_BE_006` | PMC | 2024-25 | 620.10 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
-| 7 | `PMC_202425_BE_007` | PMC | 2024-25 | 480.00 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
-| 8 | `PMC_202425_BE_008` | PMC | 2024-25 | 510.40 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
-| 9 | `PMC_202324_ACT_009` | PMC | 2023-24 | 8,125.60 | Actual Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 10 | `BMC_202526_BE_010` | BMC | 2025-26 | 74,427.41 | Budget Estimates (BE) | Verified | `jandhan_municipal_finance_verified` |
-| 11 | `BMC_202526_BE_011` | BMC | 2025-26 | 3,544.34 | Budget Estimates (BE) | Verified | `jandhan_municipal_finance_verified` |
-| 12 | `BMC_202526_BE_012` | BMC | 2025-26 | 43,162.23 | Capital Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 13 | `BMC_202425_RE_013` | BMC | 2024-25 | 37,332.08 | Revised Estimates (RE) | Verified | `jandhan_municipal_finance_verified` |
-| 14 | `BMC_202425_ACT_014` | BMC | 2024-25 | 18,991.65 | Actual Expenditure (9M) | Verified | `jandhan_municipal_finance_verified` |
-| 15 | `BMC_202526_BE_015` | BMC | 2025-26 | 31,204.53 | Revenue Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 16 | `BMC_202425_RE_016` | BMC | 2024-25 | 13,331.63 | Revenue Receipts | Verified | `jandhan_municipal_finance_verified` |
-| 17 | `BMC_202526_BE_017` | BMC | 2025-26 | 14,398.16 | Revenue Receipts | Verified | `jandhan_municipal_finance_verified` |
-| 18 | `BMC_202425_RE_018` | BMC | 2024-25 | 6,200.00 | Revenue Receipts | Verified | `jandhan_municipal_finance_verified` |
-| 19 | `BMC_202526_BE_019` | BMC | 2025-26 | 9,700.00 | Revenue Receipts | Verified | `jandhan_municipal_finance_verified` |
-| 20 | `BMC_202526_BE_020` | BMC | 2025-26 | 2,363.15 | Revenue Receipts | Verified | `jandhan_municipal_finance_verified` |
-| 21 | `BMC_202526_BE_021` | BMC | 2025-26 | 1,870.00 | Capital Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 22 | `BMC_202526_BE_022` | BMC | 2025-26 | 2,400.00 | Capital Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 23 | `BMC_202324_ACT_023` | BMC | 2023-24 | 18,281.78 | Actual Expenditure | Unverified | `jandhan_review_file` (Quarantined) |
-| 24 | `JMC_GR_202223_ACT_024` | JMC Greater | 2022-23 | 502.99 | Revenue Receipts | Verified | `jandhan_municipal_finance_verified` |
-| 25 | `JMC_GR_202223_ACT_025` | JMC Greater | 2022-23 | 520.76 | Revenue Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 26 | `JMC_GR_202223_ACT_026` | JMC Greater | 2022-23 | 300.84 | Capital Expenditure | Verified | `jandhan_municipal_finance_verified` |
-| 27 | `JMC_GR_202122_ACT_027` | JMC Greater | 2021-22 | 1,110.06 | Balance Sheet Measure | Rejected / Reclassified | `jandhan_review_file` (Quarantined) |
-| 28 | `JMC_HER_202223_ACT_028` | JMC Heritage | 2022-23 | 42.15 | Deficit Metric | Rejected / Reclassified | `jandhan_review_file` (Quarantined) |
-| 29 | `JMC_GR_202223_ACT_029` | JMC Greater | 2022-23 | 275.00 | Revenue Receipts Sub-component | Rejected / Subsumed | `jandhan_review_file` (Quarantined) |
-| 30 | `PMC_202425_BE_030` | PMC | 2024-25 | 210.15 | Budget Estimates (BE) | Partially Verified | `jandhan_review_file` (Quarantined) |
+- **FY 2026-27 Standing Committee Final Approved Budget (BE):** `₹15,669.00 Crore` (`PMC_202627_BE_039`) — up `+24.2%` over FY 2025-26 Proposed BE (`₹12,618.09 Cr`).
+  - Urban Mobility & Roads Outlay: `₹1,800.00 Crore` (`PMC_202627_DEP_040`) — includes ~65 km new roads & missing links.
+  - Land Acquisition Provision: `₹400.00 Crore` (`PMC_202627_DEP_042`) — DP roads, missing links, and footpaths (`₹85 Cr`).
+  - Property Tax Revenue Target (BE): `₹3,152.00 Crore` (`PMC_202627_REC_041`).
+- **FY 2025-26 Proposed Budget Outlay (BE):** `₹12,618.09 Crore` (`PMC_202526_BE_001`)
+  - Revenue Expenditure (BE): `₹7,093.00 Crore` (`56.2%`)
+  - Capital Expenditure (BE): `₹5,524.00 Crore` (`43.8%`)
+  - Water Supply Provision: `₹1,665.00 Crore` | Town Planning & Central Schemes: `₹1,630.00 Crore` | Merged Villages: `₹623.00 Crore` | PMPML PMC Share: `₹508.07 Crore` (`₹484.96 Cr` VGF + `₹23.11 Cr` concessions)
+- **FY 2024-25 Consolidated Approved Budget (BE):** `₹11,601.00 Crore` (`PMC_202425_BE_002`)
+  - Verified Property Tax Actual Collection: `₹2,360.00 Crore`
+- **FY 2023-24 Audited Financial Statement:**
+  - Approved Budget Estimate (BE): `₹9,515.00 Crore` (`PMC_202324_BE_010`)
+  - Audited Total Actual Expenditure: `₹8,125.60 Crore` (`PMC_202324_ACT_009`, `85.4%` budget utilization)
+  - Audited Revenue Expenditure: `₹5,910.59 Crore` | Audited Revenue Receipts: `₹11,206.84 Crore`
+- **FY 2022-23 Standing Committee Approved Budget (BE):** `₹9,716.00 Crore` (`PMC_202223_BE_011`)
+
+---
+
+## 3. Quarantine & Double-Count Prevention Decisions (12 Review Records)
+
+All 12 quarantined records remain inspectable inside the **Financial Records** ledger and **Audit Report** tab with `aggregation_eligible: false`:
+
+1. **FY 2026-27 Commissioner Initial Draft (`PMC_202627_BE_043` — `₹13,995.00 Cr`):** Quarantined as `Rejected / Subsumed` because it was superseded by the Standing Committee Final Approved Budget (`₹15,669.00 Cr`, `PMC_202627_BE_039`).
+2. **FY 2024-25 Departmental Sub-heads (`PMC_202425_BE_003`–`008`, `030` — 7 records totaling `₹5,336.40 Cr`):** Quarantined as `Partially Verified` so sectoral lines (Water, Roads, SWM, Drainage, Health, Education, Parks) are not added onto the consolidated `₹11,601.00 Cr` FY 2024-25 BE.
+3. **FY 2022-23 Commissioner Initial Draft (`PMC_202223_BE_033` — `₹8,592.00 Cr`):** Quarantined as `Rejected / Subsumed` in favor of the Standing Committee final budget (`₹9,716.00 Cr`, `PMC_202223_BE_011`).
+4. **FY 2023-24 Own-Source Revenue Component (`PMC_202324_REC_034` — `₹10,632.15 Cr`):** Quarantined as `Rejected / Subsumed` because it is already included inside Audited Total Revenue Receipts (`₹11,206.84 Cr`, `PMC_202324_REC_020`).
+5. **Balance Sheet Stock (`PMC_202324_BAL_035` — `₹52,698.00 Cr`) & Municipal Bond Debt (`PMC_202324_DEBT_036` — `₹200.00 Cr`):** Quarantined as `Rejected / Reclassified` because balance-sheet stocks and bond principal liabilities must never be added to annual income or expenditure flows.
+
+---
+
+## 4. Transparent Missing-Data Policy (`Data Not Available`)
+
+Where official PMC portals or audited accounts do not publish a field, JanDhan Insights explicitly renders `Data Not Available` rather than estimating or substituting `0`:
+
+- **FY 2024-25, FY 2025-26 & FY 2026-27 Audited Actual Expenditure:** Not yet published as closed audited statements.
+- **Ward-Wise / Prabhag-Wise Municipal Budgets & Actual Spending:** PMC does not publish machine-readable Prabhag-level financial allocations or actual spend tables.
+- **Standalone Project Disbursement Totals, Contractors (AOC), & Revised Schedules:** Not consistently itemized in open-data tables across all projects.
+- **Real-Time Live AQI & Daily Household Water Supply Hours:** PMC Environment Status Report (ESR) publishes annual benchmark metrics; live sensor feeds are not integrated.

@@ -1,31 +1,38 @@
 {
-  "report_title": "JanDhan Insights Municipal Finance Data Reconciliation & Audit Report",
-  "audit_timestamp": "2026-10-10T00:00:00Z",
+  "report_title": "JanDhan Insights — Pune Municipal Corporation (PMC) Data Reconciliation & Audit Report",
+  "audit_timestamp": "2026-11-19T00:00:00Z",
   "auditor_role": "Senior Full-Stack Engineer & Financial-Data Auditor",
   "summary_metrics": {
-    "total_records_audited": 30,
-    "active_verified_records": 19,
-    "review_quarantined_records": 11,
+    "total_records_audited": 43,
+    "active_verified_records": 31,
+    "review_quarantined_records": 12,
     "duplicate_ids": 0,
     "missing_ids": 0,
     "overlap_between_active_and_review": 0,
-    "authorities_covered": 4,
+    "authorities_covered": 1,
     "authorities_list": [
-      "Pune Municipal Corporation",
-      "Brihanmumbai Municipal Corporation",
-      "Greater Jaipur Municipal Corporation",
-      "Jaipur Heritage Municipal Corporation"
-    ]
+      "Pune Municipal Corporation"
+    ],
+    "financial_years_covered": "2022-23 to 2026-27",
+    "ward_offices_mapped": 15,
+    "prabhags_mapped": 41
   },
   "status_breakdown": {
-    "Verified": 19,
+    "Verified": 31,
     "Partially Verified": 7,
-    "Unverified": 1,
-    "Rejected_Reclassified": 2,
-    "Rejected_Subsumed": 1
+    "Rejected / Reclassified": 2,
+    "Rejected / Subsumed": 3
   },
   "specific_audit_decisions": {
-    "pune_departmental_allocations": {
+    "fy_202627_standing_committee_vs_draft": {
+      "verified_id": "PMC_202627_BE_039",
+      "verified_amount_crores": 15669.0,
+      "quarantined_id": "PMC_202627_BE_043",
+      "quarantined_amount_crores": 13995.0,
+      "decision": "PMC_202627_BE_039 active Verified; PMC_202627_BE_043 quarantined as Rejected / Subsumed",
+      "reason": "Commissioner Naval Kishore Ram's initial ₹13,995.00 Cr draft was superseded by the Standing Committee final approved FY 2026-27 budget of ₹15,669.00 Cr. Quarantined to prevent double-counting."
+    },
+    "pune_fy_202425_departmental_subheads": {
       "ids": [
         "PMC_202425_BE_003",
         "PMC_202425_BE_004",
@@ -36,38 +43,37 @@
         "PMC_202425_BE_030"
       ],
       "decision": "Quarantined in jandhan_review_file.json as Partially Verified",
-      "reason": "Retained under review pending ward schedule reference verification; excluded from active aggregates to prevent double-counting with PMC_202425_BE_002 (₹11,601.00 Cr)."
+      "reason": "Retained under review pending ward schedule reference verification; excluded from active aggregates to prevent double-counting with consolidated FY 2024-25 outlay PMC_202425_BE_002 (₹11,601.00 Cr)."
     },
-    "bmc_actual_expenditure": {
-      "id": "BMC_202324_ACT_023",
-      "decision": "Quarantined in jandhan_review_file.json as Unverified",
-      "reason": "Amount of ₹18,281.78 Cr is cited in speech comparative table; withheld from verified totals until formal audited CAG / Local Fund Audit report is published."
+    "fy_202223_draft_budget_subsumption": {
+      "verified_id": "PMC_202223_BE_011",
+      "quarantined_id": "PMC_202223_BE_033",
+      "decision": "Quarantined in jandhan_review_file.json as Rejected / Subsumed",
+      "reason": "Commissioner initial draft estimate (₹8,592.00 Cr) was superseded by Standing Committee final approved FY 2022-23 budget (₹9,716.00 Cr)."
     },
-    "bmc_total_budget_scope": {
-      "id": "BMC_202526_BE_010",
-      "decision": "Verified and active (₹74,427.41 Cr)",
-      "evidence": "Verified on Page 6 of BMC Commissioner Speech PDF: confirms total budget size covers Funds A (City), B (Improvement), E (Education), G (Water & Sewerage), and support to T (Transport/BEST)."
+    "fy_202324_own_source_revenue_subsumption": {
+      "verified_id": "PMC_202324_REC_020",
+      "quarantined_id": "PMC_202324_REC_034",
+      "decision": "Quarantined in jandhan_review_file.json as Rejected / Subsumed",
+      "reason": "Own-source revenue receipts (₹10,632.15 Cr) are already included within Audited Total Revenue Receipts (₹11,206.84 Cr = ₹10,632.15 Cr own + ₹574.69 Cr grants)."
     },
-    "jaipur_octroi_subsumption": {
-      "id": "JMC_GR_202223_ACT_029",
-      "decision": "Excluded and Quarantined as Rejected / Subsumed",
-      "reason": "Account Head 1202001 (₹275.00 Cr) is confirmed to be already subsumed within Total Revenue Receipts JMC_GR_202223_ACT_024 (₹502.99 Cr). Excluded to prevent double counting."
-    },
-    "jaipur_balance_sheet_metric": {
-      "id": "JMC_GR_202122_ACT_027",
+    "balance_sheet_and_bond_debt_isolation": {
+      "ids": [
+        "PMC_202324_BAL_035",
+        "PMC_202324_DEBT_036"
+      ],
       "decision": "Excluded and Quarantined as Rejected / Reclassified",
-      "reason": "Stock balance-sheet asset/liability metric of ₹1,110.06 Cr cannot be added to revenue or expenditure aggregates."
+      "reason": "Total Balance Sheet size (₹52,698.00 Cr) and Outstanding BSE Municipal Bond Liability (₹200.00 Cr) are stock balance-sheet measures, not annual revenue/expenditure flows."
     },
-    "jaipur_heritage_deficit_metric": {
-      "id": "JMC_HER_202223_ACT_028",
-      "decision": "Excluded and Quarantined as Rejected / Reclassified",
-      "reason": "Accounting deficit figure of ₹42.15 Cr represents net shortfall, not total municipal spending outflow."
+    "strict_pmc_boundary_isolation": {
+      "decision": "Enforced across all 43 records, 20 departments, 15 Ward Offices, 41 Prabhags, and 8 public projects",
+      "reason": "Excludes PCMC, Pune Cantonment, Khadki Cantonment, and non-PMC PMRDA works; isolates PMPML to PMC's statutory 60% municipal share (₹484.96 Cr VGF + ₹23.11 Cr pass concessions)."
     }
   },
   "mathematical_reconciliation": {
     "currency_conversion_formula": "Normalized INR = Amount in Crore * 10,000,000",
-    "conversion_accuracy": "100% programmatically validated across all 30 records",
-    "zero_policy": "Zero is never used as substitute for missing information; null used consistently",
+    "conversion_accuracy": "100% programmatically validated across all 43 records",
+    "zero_policy": "Zero is never used as substitute for missing information; Data Not Available / null used consistently",
     "aggregation_eligibility_enforced": true
   }
 }

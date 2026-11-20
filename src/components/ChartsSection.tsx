@@ -17,52 +17,28 @@ import { AlertTriangle } from 'lucide-react';
 
 interface ChartsSectionProps {
   records: ReconciledRecord[];
+  defaultTab?: 'budget-actual' | 'sectors' | 'revenue';
 }
 
-export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
-  const [chartTab, setChartTab] = useState<'budget-actual' | 'sectors' | 'revenue'>(
-    'budget-actual'
-  );
+export const ChartsSection: React.FC<ChartsSectionProps> = ({
+  records,
+  defaultTab = 'budget-actual'
+}) => {
+  const [chartTab, setChartTab] = useState<'budget-actual' | 'sectors' | 'revenue'>(defaultTab);
   const [includeQuarantinedDepts, setIncludeQuarantinedDepts] = useState<boolean>(false);
 
   const allRecords = useMemo(() => dataProvider.getAllAuditedRecords(), []);
 
-  // 1. Multi-Year Budget Estimate vs Audited Expenditure (FY 2022-23 to FY 2025-26)
+  // 1. Multi-Year Budget Estimate vs Audited Expenditure (FY 2022-23 to FY 2026-27) from dataProvider
   const multiYearData = useMemo(() => {
-    return [
-      {
-        fy: 'FY 2022-23',
-        be: 9716.0,
-        actual: null as number | null,
-        revExp: 6682.54,
-        revRec: 9425.79,
-        note: 'Standing Committee Final BE ₹9,716 Cr; Audited Revenue Exp ₹6,682.54 Cr'
-      },
-      {
-        fy: 'FY 2023-24',
-        be: 9515.0,
-        actual: 8125.6,
-        revExp: 5910.59,
-        revRec: 11206.84,
-        note: 'Approved BE ₹9,515 Cr vs Audited Total Actual Expenditure ₹8,125.60 Cr (85.4%)'
-      },
-      {
-        fy: 'FY 2024-25',
-        be: 11601.0,
-        actual: null as number | null,
-        revExp: null as number | null,
-        revRec: null as number | null,
-        note: 'Approved BE ₹11,601 Cr; Full-year audited actual expenditure: Data Not Available'
-      },
-      {
-        fy: 'FY 2025-26',
-        be: 12618.09,
-        actual: null as number | null,
-        revExp: null as number | null,
-        revRec: null as number | null,
-        note: 'Proposed BE ₹12,618.09 Cr (₹7,093 Cr Rev + ₹5,524 Cr Cap); Actuals pending fiscal close'
-      }
-    ];
+    return dataProvider.getFiveYearExpenditureTrends().map((point) => ({
+      fy: point.fyLabel,
+      be: point.approvedBudgetBE,
+      actual: point.auditedTotalExpenditure,
+      revExp: point.auditedRevenueExpenditure,
+      revRec: point.auditedRevenueReceipts,
+      note: point.notes
+    }));
   }, []);
 
   // 2. Department & Sector Allocation data
@@ -103,7 +79,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
     };
   }, [records, allRecords, includeQuarantinedDepts]);
 
-  // 3. Revenue Targets (FY 25-26 BE) & Property Tax Trend
+  // 3. Revenue Targets (FY 25-26 BE) & Property Tax Trend (FY 22-27)
   const revenueAnalysis = useMemo(() => {
     const targets2526 = records
       .filter((r) => r.domain === 'revenue' && r.financial_year === '2025-26')
@@ -124,14 +100,15 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
       { fy: 'FY 2022-23', amount: 1963.0, type: 'Actual Collection' },
       { fy: 'FY 2023-24', amount: 2273.0, type: 'Actual Collection' },
       { fy: 'FY 2024-25', amount: 2360.0, type: 'Actual Collection' },
-      { fy: 'FY 2025-26', amount: 2847.0, type: 'Budgeted Target (BE)' }
+      { fy: 'FY 2025-26', amount: 2847.0, type: 'Budgeted Target (BE)' },
+      { fy: 'FY 2026-27', amount: 3152.0, type: 'Standing Comm. Target (BE)' }
     ];
 
     return { targets2526, propertyTaxTrend };
   }, [records]);
 
   const tabs: Array<{ key: 'budget-actual' | 'sectors' | 'revenue'; label: string }> = [
-    { key: 'budget-actual', label: 'Budget vs Audited Actuals' },
+    { key: 'budget-actual', label: 'Budget vs Audited Actuals (FY 22–27)' },
     { key: 'sectors', label: 'Sector Allocations' },
     { key: 'revenue', label: 'Revenue & Tax Collection' }
   ];
@@ -182,7 +159,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
       {/* TAB 1: Multi-Year Budget vs Audited Actuals */}
       {chartTab === 'budget-actual' && (
         <div className="space-y-4">
-          <div className="h-[290px] w-full">
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={multiYearData}
@@ -196,7 +173,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
                   tickLine={false}
                 />
                 <YAxis
-                  width={60}
+                  width={62}
                   tick={{ fontSize: 11, fill: '#5A6560' }}
                   tickFormatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`}
                   axisLine={false}
@@ -241,21 +218,21 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
                   dataKey="be"
                   fill="#133429"
                   radius={[4, 4, 0, 0]}
-                  barSize={32}
+                  barSize={28}
                 />
                 <Bar
                   name="Audited Total Actual Spend (₹ Cr)"
                   dataKey="actual"
                   fill="#0E7C74"
                   radius={[4, 4, 0, 0]}
-                  barSize={32}
+                  barSize={28}
                 />
                 <Bar
                   name="Audited Revenue Spend (₹ Cr)"
                   dataKey="revExp"
                   fill="#6FB3A8"
                   radius={[4, 4, 0, 0]}
-                  barSize={32}
+                  barSize={28}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -263,7 +240,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
 
           <div className="pt-3 border-t border-[#E5E0D5] flex flex-wrap items-center justify-between gap-3 text-xs text-[#5A6560]">
             <span>
-              Audited full-year total actual expenditure is verified through FY 2023-24 (₹8,125.60 Cr). FY 2024-25 &amp; FY 2025-26 actuals are marked Data Not Available until published.
+              Audited full-year total actual expenditure is verified through FY 2023-24 (₹8,125.60 Cr, 85.4% of BE). FY 2024-25 through FY 2026-27 actuals remain Data Not Available until audited.
             </span>
             <span className="font-mono tabular-nums">Unit: ₹ Crore</span>
           </div>
@@ -291,7 +268,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
             </div>
           )}
 
-          <div className="h-[320px] w-full">
+          <div className="h-[340px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={sectorData.items}
@@ -421,14 +398,14 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
             </p>
           </div>
 
-          {/* Chart B: Property Tax Actuals vs Target */}
+          {/* Chart B: Property Tax Actuals vs Target (FY 2022-27) */}
           <div className="p-5 rounded-[6px] bg-[#FAF8F3] border border-[#E5E0D5] space-y-3">
             <div className="flex items-center justify-between gap-2 text-xs">
               <span className="font-semibold text-[#133429]">
-                PMC Property Tax Collections (Actuals vs Target)
+                PMC Property Tax Collections (Actuals vs Targets)
               </span>
               <span className="font-mono text-[11px] font-medium text-[#0E7C74] shrink-0">
-                FY 2022-26
+                FY 2022–27
               </span>
             </div>
             <div className="h-[240px] w-full">
@@ -440,7 +417,7 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E0D5" />
                   <XAxis
                     dataKey="fy"
-                    tick={{ fontSize: 11, fill: '#1C2422', fontWeight: 500 }}
+                    tick={{ fontSize: 10.5, fill: '#1C2422', fontWeight: 500 }}
                     axisLine={{ stroke: '#E5E0D5' }}
                     tickLine={false}
                   />
@@ -470,17 +447,18 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({ records }) => {
                       return null;
                     }}
                   />
-                  <Bar dataKey="amount" radius={[4, 4, 0, 0]} barSize={42}>
+                  <Bar dataKey="amount" radius={[4, 4, 0, 0]} barSize={36}>
                     <Cell fill="#0E7C74" />
                     <Cell fill="#0E7C74" />
                     <Cell fill="#0E7C74" />
                     <Cell fill="#D97706" />
+                    <Cell fill="#133429" />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
             <p className="text-[11px] text-[#5A6560] leading-relaxed">
-              Teal bars show verified actual collections (₹1,963 Cr → ₹2,273 Cr → ₹2,360 Cr); amber bar shows FY 2025-26 BE target (₹2,847 Cr).
+              Teal bars show verified actual collections (₹1,963 Cr → ₹2,273 Cr → ₹2,360 Cr); amber &amp; forest bars show BE targets (₹2,847 Cr in FY 25-26; ₹3,152 Cr in FY 26-27).
             </p>
           </div>
         </div>

@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { ReconciledRecord, FinancialCategory, SourceClassification } from '../types';
 import { formatPrintedWithUnit } from '../utils/formatters';
 import { dataProvider } from '../services/dataProvider';
+import { VerificationBadge } from '../components/VerificationBadge';
+import { toStandardVerificationBadge } from '../data/pmcCivicSectionsData';
 import {
   Search,
   SlidersHorizontal,
-  CheckCircle2,
   AlertTriangle,
   Download,
   ArrowUpDown,
@@ -56,7 +57,7 @@ export const SpendingPage: React.FC<SpendingPageProps> = ({ onSelectRecord }) =>
     'Debt & Liabilities'
   ];
 
-  const financialYears = ['2025-26', '2024-25', '2023-24', '2022-23'];
+  const financialYears = ['2026-27', '2025-26', '2024-25', '2023-24', '2022-23'];
 
   const allAudited = dataProvider.getAllAuditedRecords();
   const metrics = dataProvider.getReconciliationMetrics();
@@ -500,18 +501,16 @@ export const SpendingPage: React.FC<SpendingPageProps> = ({ onSelectRecord }) =>
                         {formatPrintedWithUnit(rec.amount_as_printed, rec.original_unit)}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1 text-[11px] font-semibold ${
-                            isVerified ? 'text-[#0E7C74]' : 'text-[#B45309]'
-                          }`}
-                        >
-                          {isVerified ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                          ) : (
-                            <AlertTriangle className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <VerificationBadge
+                            status={toStandardVerificationBadge(rec.verification_status)}
+                          />
+                          {!isVerified && (
+                            <span className="text-[10px] text-[#5A6560]">
+                              {rec.verification_status}
+                            </span>
                           )}
-                          <span>{rec.verification_status}</span>
-                        </span>
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right whitespace-nowrap">
                         <button

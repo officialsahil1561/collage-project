@@ -6,9 +6,20 @@ import {
   FilterState,
   DepartmentProfile,
   WardOffice,
+  PrabhagRecord,
   TenderContract,
-  CivicAssetIndicator
+  CivicAssetIndicator,
+  WaterTreatmentPlant,
+  SewageTreatmentPlant,
+  RoadDevelopmentItem,
+  PublicFacilityCategory,
+  EnvironmentIndicatorItem,
+  PuneLandmarkSlide,
+  CitizenGlossaryTerm,
+  FiveYearExpenditurePoint
 } from '../types';
+import { WardIntelligence } from '../data/pmcWardIntelligence';
+import { PMC_WARD_INTELLIGENCE } from '../data/pmcWardIntelligence';
 import {
   ALL_VERIFIED_RECORDS,
   ALL_REVIEW_RECORDS,
@@ -25,6 +36,16 @@ import {
   PMC_CIVIC_ASSETS,
   BudgetTrackerRow
 } from '../data/pmcExtendedData';
+import {
+  PMC_PRABHAGS,
+  PMC_WATER_TREATMENT_PLANTS,
+  PMC_SEWAGE_TREATMENT_PLANTS,
+  PMC_ROADS_DEVELOPMENT_ITEMS,
+  PMC_PUBLIC_FACILITY_CATEGORIES,
+  PMC_ENVIRONMENT_INDICATORS,
+  PUNE_LANDMARK_SLIDES,
+  CITIZEN_GLOSSARY_TERMS
+} from '../data/pmcCivicSectionsData';
 
 export const dataProvider = {
   /**
@@ -105,6 +126,62 @@ export const dataProvider = {
    */
   getCivicAssets(): CivicAssetIndicator[] {
     return [...PMC_CIVIC_ASSETS];
+  },
+
+  /**
+   * Get all 41 PMC electoral Prabhags mapped to 15 Regional Ward Offices
+   */
+  getPrabhags(): PrabhagRecord[] {
+    return [...PMC_PRABHAGS];
+  },
+
+  /**
+   * Get PMC Water Treatment Plants (WTPs)
+   */
+  getWaterTreatmentPlants(): WaterTreatmentPlant[] {
+    return [...PMC_WATER_TREATMENT_PLANTS];
+  },
+
+  /**
+   * Get PMC Sewage Treatment Plants (STPs)
+   */
+  getSewageTreatmentPlants(): SewageTreatmentPlant[] {
+    return [...PMC_SEWAGE_TREATMENT_PLANTS];
+  },
+
+  /**
+   * Get Roads & Mobility Development tracker items
+   */
+  getRoadsDevelopmentItems(): RoadDevelopmentItem[] {
+    return [...PMC_ROADS_DEVELOPMENT_ITEMS];
+  },
+
+  /**
+   * Get Public Facilities categories across PMC
+   */
+  getPublicFacilityCategories(): PublicFacilityCategory[] {
+    return [...PMC_PUBLIC_FACILITY_CATEGORIES];
+  },
+
+  /**
+   * Get Pune Environment Status Report (ESR) indicators
+   */
+  getEnvironmentIndicators(): EnvironmentIndicatorItem[] {
+    return [...PMC_ENVIRONMENT_INDICATORS];
+  },
+
+  /**
+   * Get authentic Pune Landmark Carousel slides
+   */
+  getLandmarkSlides(): PuneLandmarkSlide[] {
+    return [...PUNE_LANDMARK_SLIDES];
+  },
+
+  /**
+   * Get plain-language financial glossary terms
+   */
+  getCitizenGlossaryTerms(): CitizenGlossaryTerm[] {
+    return [...CITIZEN_GLOSSARY_TERMS];
   },
 
   /**
@@ -203,6 +280,143 @@ export const dataProvider = {
       rejectedSubsumed,
       authoritiesCount: 1
     };
+  },
+
+  /**
+   * Programmatically derive 5-year PMC municipal expenditure & budget outlay trends
+   * (FY 2022-23 through FY 2026-27) strictly from aggregation-eligible verified records.
+   * Missing audited actuals remain explicitly null (never fabricated or zeroed).
+   */
+  getFiveYearExpenditureTrends(): FiveYearExpenditurePoint[] {
+    const fiscalYears = ['2022-23', '2023-24', '2024-25', '2025-26', '2026-27'];
+    const eligible = ALL_VERIFIED_RECORDS.filter((r) => r.aggregation_eligible);
+
+    let previousBE: number | null = null;
+
+    return fiscalYears.map((fy) => {
+      const budgetRec = eligible.find(
+        (r) =>
+          r.financial_year === fy &&
+          r.domain === 'budget' &&
+          r.financial_category === 'Budget Estimates (BE)' &&
+          r.department_or_sector === 'Total Municipal Outlay'
+      );
+
+      const auditedTotalRec = eligible.find(
+        (r) =>
+          r.financial_year === fy &&
+          r.domain === 'expenditure' &&
+          r.financial_category === 'Actual Expenditure' &&
+          r.department_or_sector === 'Total Municipal Outlay'
+      );
+
+      const auditedRevExpRec = eligible.find(
+        (r) =>
+          r.financial_year === fy &&
+          r.domain === 'expenditure' &&
+          r.financial_category === 'Revenue Expenditure' &&
+          r.source_classification === 'Audited Financial Statement'
+      );
+
+      const budgetedRevExpRec = eligible.find(
+        (r) =>
+          r.financial_year === fy &&
+          r.domain === 'expenditure' &&
+          r.financial_category === 'Revenue Expenditure' &&
+          r.source_classification === 'Official Budget Estimate'
+      );
+
+      const budgetedCapExpRec = eligible.find(
+        (r) =>
+          r.financial_year === fy &&
+          r.domain === 'expenditure' &&
+          r.financial_category === 'Capital Expenditure' &&
+          r.department_or_sector.startsWith('Capital Outlay')
+      );
+
+      const auditedReceiptsRec = eligible.find(
+        (r) =>
+          r.financial_year === fy &&
+          r.domain === 'revenue' &&
+          r.financial_category === 'Revenue Receipts' &&
+          r.source_classification === 'Audited Financial Statement'
+      );
+
+      const approvedBudgetBE = budgetRec ? budgetRec.amount_in_crores : 0;
+      const yoyBudgetGrowthPct =
+        previousBE !== null && previousBE > 0
+          ? Number((((approvedBudgetBE - previousBE) / previousBE) * 100).toFixed(1))
+          : null;
+      previousBE = approvedBudgetBE;
+
+      const auditedTotalExpenditure = auditedTotalRec ? auditedTotalRec.amount_in_crores : null;
+      const utilizationPct =
+        auditedTotalExpenditure !== null && approvedBudgetBE > 0
+          ? Number(((auditedTotalExpenditure / approvedBudgetBE) * 100).toFixed(1))
+          : null;
+
+      const auditedRevenueExpenditure = auditedRevExpRec ? auditedRevExpRec.amount_in_crores : null;
+      const budgetedRevenueExpenditure = budgetedRevExpRec
+        ? budgetedRevExpRec.amount_in_crores
+        : null;
+      const budgetedCapitalExpenditure = budgetedCapExpRec
+        ? budgetedCapExpRec.amount_in_crores
+        : null;
+      const auditedRevenueReceipts = auditedReceiptsRec
+        ? auditedReceiptsRec.amount_in_crores
+        : null;
+
+      const sourceRecordIds = [
+        budgetRec?.unique_id,
+        auditedTotalRec?.unique_id,
+        auditedRevExpRec?.unique_id,
+        budgetedRevExpRec?.unique_id,
+        budgetedCapExpRec?.unique_id,
+        auditedReceiptsRec?.unique_id
+      ].filter((id): id is string => Boolean(id));
+
+      const auditStatus: FiveYearExpenditurePoint['auditStatus'] =
+        auditedTotalExpenditure !== null
+          ? 'Audited Actuals Available'
+          : auditedRevenueExpenditure !== null
+          ? 'Audited Revenue Exp. Only'
+          : 'BE Only — Actuals Not Available';
+
+      const stageLabel = budgetRec?.record_type ?? 'Approved Budget Estimate';
+
+      let notes = budgetRec?.extraction_note ?? '';
+      if (auditedTotalRec && utilizationPct !== null) {
+        notes = `Audited actual expenditure ₹${auditedTotalRec.amount_as_printed} Cr (${utilizationPct}% of ₹${budgetRec?.amount_as_printed} Cr BE); Revenue Exp. ₹${auditedRevExpRec?.amount_as_printed ?? 'N/A'} Cr.`;
+      } else if (auditedRevExpRec) {
+        notes = `Standing Committee BE ₹${budgetRec?.amount_as_printed} Cr; Audited Revenue Exp. ₹${auditedRevExpRec.amount_as_printed} Cr. Total consolidated actuals: Data Not Available.`;
+      } else if (budgetedRevExpRec && budgetedCapExpRec) {
+        notes = `Proposed BE ₹${budgetRec?.amount_as_printed} Cr (₹${budgetedRevExpRec.amount_as_printed} Cr Revenue + ₹${budgetedCapExpRec.amount_as_printed} Cr Capital). Full-year actuals pending audit.`;
+      } else {
+        notes = `${budgetRec?.extraction_note ?? ''} Full-year audited actual expenditure: Data Not Available.`.trim();
+      }
+
+      return {
+        financialYear: fy,
+        fyLabel: `FY ${fy}`,
+        approvedBudgetBE,
+        yoyBudgetGrowthPct,
+        auditedTotalExpenditure,
+        utilizationPct,
+        auditedRevenueExpenditure,
+        budgetedRevenueExpenditure,
+        budgetedCapitalExpenditure,
+        auditedRevenueReceipts,
+        stageLabel,
+        auditStatus,
+        primaryRecordId: auditedTotalRec?.unique_id ?? budgetRec?.unique_id ?? '',
+        sourceRecordIds,
+        sourceUrl:
+          auditedTotalRec?.official_document_url ??
+          budgetRec?.official_document_url ??
+          'https://www.pmc.gov.in/en/budget-overview',
+        notes
+      };
+    });
   },
 
   /**
@@ -327,5 +541,84 @@ export const dataProvider = {
       );
     }
     return lines.join('\n');
+  },
+
+  /**
+   * Get enriched ward civic intelligence records for all 15 PMC regional wards
+   */
+  getWardIntelligenceList(): WardIntelligence[] {
+    return [...PMC_WARD_INTELLIGENCE];
+  },
+
+  /**
+   * Get enriched ward intelligence for a specific ward ID
+   */
+  getWardIntelligenceById(id: string): WardIntelligence | undefined {
+    return PMC_WARD_INTELLIGENCE.find((w) => w.id === id);
+  },
+
+  /**
+   * Build CSV string for Ward Intelligence table export
+   */
+  buildWardIntelligenceCSV(wards: WardIntelligence[]): string {
+    const headers = [
+      'ward_number',
+      'ward_name',
+      'zone',
+      'deputy_commissioner_zone',
+      'prabhag_coverage',
+      'key_localities',
+      'includes_merged_villages',
+      'population_estimate',
+      'water_supply_lpcd',
+      'drainage_coverage_pct',
+      'schools_count',
+      'healthcare_facilities_count',
+      'parks_and_gardens_count',
+      'public_toilets_count',
+      'fire_stations_count',
+      'streetlights_estimate',
+      'tree_census_estimate',
+      'property_tax_note',
+      'actual_expenditure_status'
+    ];
+    const escapeCsv = (val: string | number | boolean | null | undefined) => {
+      if (val === null || val === undefined) return 'Data Not Available';
+      const str = String(val);
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+    const lines = [headers.join(',')];
+    for (const w of wards) {
+      lines.push(
+        [
+          w.wardNumber,
+          w.name,
+          w.zone,
+          w.deputyCommissionerZone,
+          w.prabhagCoverage,
+          w.keyLocalities.join('; '),
+          w.includesMergedVillages,
+          w.populationEstimate,
+          w.waterSupplyLPCD,
+          w.drainageCoveragePct,
+          w.schoolsCount,
+          w.healthcareFacilitiesCount,
+          w.parksAndGardensCount,
+          w.publicToiletsCount,
+          w.fireStationsCount,
+          w.streetlightsCountEstimate,
+          w.treeCountEstimate,
+          w.propertyTaxCollectionNote,
+          w.wardActualExpenditureStatus
+        ]
+          .map(escapeCsv)
+          .join(',')
+      );
+    }
+    return lines.join('\n');
   }
 };
+

@@ -41,7 +41,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </button>
               <button
                 type="button"
-                onClick={() => onNavigate('sources')}
+                onClick={() => onNavigate('audit-report')}
                 className="h-10 px-5 rounded-[6px] border border-[#E5E0D5] bg-[#FAF8F3] hover:bg-white text-[#133429] text-xs font-semibold transition-colors cursor-pointer"
               >
                 Inspect Audit Report ({metrics.total} Records)
@@ -100,7 +100,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                 No Double-Counting
               </h3>
               <p className="text-xs text-[#5A6560] leading-relaxed">
-                {metrics.review} records—including 7 FY 2024-25 departmental sub-heads, subsumed draft budgets, subsumed revenue components, balance-sheet stocks, and bond debt—are quarantined from aggregate totals.
+                {metrics.review} records—including 7 FY 2024-25 departmental sub-heads, subsumed Commissioner drafts (FY 2022-23 &amp; FY 2026-27), subsumed revenue components, balance-sheet stocks, and bond debt—are quarantined from aggregate totals.
               </p>
             </div>
 
@@ -113,7 +113,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                 Honest Missing Disclosures
               </h3>
               <p className="text-xs text-[#5A6560] leading-relaxed">
-                Where PMC has not published ward-wise budgets, FY 2024-25/25-26 audited actuals, contractor AOCs, or completion dates, fields display <strong>Data Not Available</strong> rather than guesses.
+                Where PMC has not published ward-wise budgets, FY 2024-25 through FY 2026-27 audited actuals, contractor AOCs, or completion dates, fields display <strong>Data Not Available</strong> rather than guesses.
               </p>
             </div>
           </div>

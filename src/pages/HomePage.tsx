@@ -1,6 +1,7 @@
 import React from 'react';
 import { PUNE_MEDIA } from '../assets/puneAssets';
 import { dataProvider } from '../services/dataProvider';
+import { PuneLandmarkCarousel } from '../components/PuneLandmarkCarousel';
 import {
   Landmark,
   Route,
@@ -14,7 +15,11 @@ import {
   BookOpen,
   ArrowRight,
   MapPinned,
-  FileSignature
+  FileSignature,
+  MessageSquareWarning,
+  MessageSquarePlus,
+  Trees,
+  Building2
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -23,6 +28,8 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const summary = dataProvider.getPMCSummary();
+  const metrics = dataProvider.getReconciliationMetrics();
+  const slides = dataProvider.getLandmarkSlides();
 
   const navigate = (page: string) => {
     onNavigate(page);
@@ -31,28 +38,29 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   const photoFeatureCards = [
     {
-      title: 'Municipal Budgets',
-      description: "Explore Pune's annual budgets and financial allocations.",
+      title: 'Municipal Budgets (FY 2022–27)',
+      description:
+        "Explore Pune's approved FY 2026-27 ₹15,669 Cr Standing Committee BE alongside historical accounts.",
       image: PUNE_MEDIA.agaKhanPalaceCard,
       alt: 'Aga Khan Palace historic stone colonnades and gardens in Pune, Maharashtra',
       targetPage: 'budget',
-      caption: 'FY 2025-26 Outlay · ₹12,618.09 Cr BE'
+      caption: 'FY 2026-27 Approved BE · ₹15,669.00 Cr'
     },
     {
-      title: 'Public Projects',
-      description: 'Discover civic infrastructure projects across Pune.',
+      title: 'Public Projects & Mobility',
+      description: 'Track ₹1,800 Cr road works, 65 km new corridors, water schemes, and STPs across Pune.',
       image: PUNE_MEDIA.puneInfrastructureCard,
       alt: 'Modern civic bridge and urban corridor in Pune, Maharashtra',
-      targetPage: 'projects',
-      caption: '8 Documented Infrastructure Schemes'
+      targetPage: 'roads-development',
+      caption: 'FY 2026-27 Mobility Outlay · ₹1,800.00 Cr'
     },
     {
       title: 'Spending & Accountability',
-      description: 'Understand public expenditure through financial records.',
+      description: 'Inspect verified line items, double-count quarantines, and source citations.',
       image: PUNE_MEDIA.puneHeritageStreetCard,
       alt: 'Historic Deccan stone civic architecture and leafy avenue in Pune, Maharashtra',
       targetPage: 'records',
-      caption: '38 Reconciled & Quarantined Records'
+      caption: `${metrics.total} Reconciled Records (${metrics.verified} Verified)`
     }
   ];
 
@@ -61,29 +69,29 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       icon: Landmark,
       title: 'Municipal Finance',
       summary:
-        'Annual Budget Estimates separated strictly from Revised Estimates and Audited Financial Statements.',
+        'FY 2026-27 Standing Committee BE (₹15,669 Cr) separated strictly from quarantined drafts and audited actuals.',
       targetPage: 'finances'
     },
     {
       icon: Route,
-      title: 'Roads & Infrastructure',
+      title: 'Roads & Development',
       summary:
-        'Multi-level flyovers, riverfront embankments, and merged-village road allocations across Pune.',
-      targetPage: 'projects'
+        '₹1,800 Cr urban mobility provision, 65 km missing links, ₹400 Cr land acquisition, and ₹85 Cr model footpaths.',
+      targetPage: 'roads-development'
     },
     {
       icon: Droplets,
-      title: 'Water & Public Services',
+      title: 'Water & Sanitation',
       summary:
-        '24x7 equitable water schemes, JICA sewage treatment plants, municipal hospitals, and 12 civic sectors.',
-      targetPage: 'infrastructure'
+        '6 major Water Treatment Plants, 11 JICA Mula-Mutha STPs (396 MLD), and 2,400 TPD solid waste processing.',
+      targetPage: 'water-sanitation'
     },
     {
-      icon: ShieldCheck,
-      title: 'Public Accountability',
+      icon: Trees,
+      title: 'Environment & Wards',
       summary:
-        'Every figure linked to its primary PMC or OpenCity citation, with missing disclosures marked Data Not Available.',
-      targetPage: 'records'
+        'PMC Environment Status Report metrics, 5.78 lakh+ recorded trees, and all 15 Ward Offices & 41 Prabhags.',
+      targetPage: 'environment'
     }
   ];
 
@@ -91,7 +99,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     {
       icon: Calculator,
       title: 'Annual Budgets',
-      subtitle: 'BE, RE & Actuals Tracker (FY 2022–26)',
+      subtitle: 'BE, RE & Actuals Tracker (FY 2022–27)',
       targetPage: 'budget'
     },
     {
@@ -101,15 +109,45 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       targetPage: 'departments'
     },
     {
+      icon: MapPinned,
+      title: 'Ward Explorer (15 · 41)',
+      subtitle: '15 Ward Offices, 41 Prabhags & Comparison',
+      targetPage: 'wards'
+    },
+    {
+      icon: Droplets,
+      title: 'Water & Sanitation',
+      subtitle: '6 WTPs, 11 JICA STPs (396 MLD) & SWM',
+      targetPage: 'water-sanitation'
+    },
+    {
+      icon: Route,
+      title: 'Roads & Development',
+      subtitle: '65 km Missing Links, Footpaths & Mobility',
+      targetPage: 'roads-development'
+    },
+    {
+      icon: Building2,
+      title: 'Public Facilities',
+      subtitle: '96 Clinics, Schools, 20 Fire Stations & Parks',
+      targetPage: 'public-facilities'
+    },
+    {
+      icon: Trees,
+      title: 'Environment Dashboard',
+      subtitle: 'ESR Air, Mula-Mutha Water, Waste & Tree Census',
+      targetPage: 'environment'
+    },
+    {
       icon: FolderKanban,
       title: 'Public Projects',
-      subtitle: 'Roads, Water, STPs, Hospitals & Schools',
+      subtitle: '8 Sanctioned Capital Works & Schemes',
       targetPage: 'projects'
     },
     {
       icon: ReceiptText,
       title: 'Spending Records',
-      subtitle: '38-Record Audited & Review Ledger',
+      subtitle: `${metrics.total}-Record Audited & Quarantine Ledger`,
       targetPage: 'records'
     },
     {
@@ -117,6 +155,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       title: 'Audit & Verification',
       subtitle: 'Quarantine & Double-Count Controls',
       targetPage: 'sources'
+    },
+    {
+      icon: FileSignature,
+      title: 'Tenders & Contracts',
+      subtitle: 'MahaTenders & Standing Committee Awards',
+      targetPage: 'tenders'
     },
     {
       icon: BookOpen,
@@ -128,73 +172,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   return (
     <div className="animate-fadeIn">
-      {/* 1. FULL-WIDTH PHOTOGRAPHIC HERO BANNER */}
-      <section
-        aria-label="Pune Municipal Corporation Public Finance Overview"
-        className="relative w-full min-h-[520px] lg:min-h-[590px] flex items-center bg-[#0E2920] overflow-hidden"
-      >
-        <img
-          src={PUNE_MEDIA.shaniwarWadaHero}
-          alt="Shaniwar Wada fortification gateway (Dilli Darwaza) in Pune, Maharashtra"
-          referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        {/* Measured editorial dark scrim for >= 4.5:1 text contrast */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-r from-[#0E2920]/90 via-[#0E2920]/72 to-[#0E2920]/45"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0E2920]/65 to-transparent"
-        />
-
-        <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-          <div className="max-w-2xl space-y-6">
-            {/* Unboxed editorial metadata line (Zero pills) */}
-            <div className="flex flex-wrap items-center gap-2.5 text-xs uppercase tracking-[0.14em] text-[#D3DFD9] font-medium">
-              <span>Pune Municipal Corporation</span>
-              <span aria-hidden="true">·</span>
-              <span>Maharashtra Civic Finance Portal</span>
-            </div>
-
-            <h1 className="font-serif text-[38px] sm:text-[48px] lg:text-[56px] font-semibold leading-[1.1] tracking-tight text-[#FAF8F3] text-balance">
-              Understanding Where Pune&apos;s Money Goes
-            </h1>
-
-            <p className="text-base sm:text-lg text-[#E6ECE9] leading-relaxed max-w-xl font-normal">
-              Explore municipal budgets, public spending and civic projects through transparent financial records.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-5">
-              <button
-                type="button"
-                onClick={() => navigate('finances')}
-                className="h-12 px-7 rounded-[6px] bg-[#FAF8F3] hover:bg-white text-[#133429] text-sm font-semibold inline-flex items-center gap-2.5 shadow-[0_6px_20px_rgba(0,0,0,0.22)] transition-all duration-150 cursor-pointer"
-              >
-                <span>Explore Municipal Finances</span>
-                <ArrowRight className="w-4 h-4 text-[#0E7C74]" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate('sources')}
-                className="text-sm font-medium text-[#FAF8F3] hover:text-white underline underline-offset-4 decoration-[#FAF8F3]/50 hover:decoration-white transition-colors cursor-pointer"
-              >
-                Inspect Official Sources
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Quiet bottom caption */}
-        <div className="hidden sm:block absolute bottom-5 right-6 lg:right-10 z-10 text-xs text-[#E6ECE9]/85 tracking-wide">
-          Shaniwar Wada, Pune · FY {summary.latestFinancialYear} Proposed Budget{' '}
-          <span className="font-mono tabular-nums font-semibold text-white">
-            ₹{summary.totalBudgetBE.toLocaleString('en-IN')} Cr
-          </span>
-        </div>
-      </section>
+      {/* 1. FULL-WIDTH ROTATING PUNE LANDMARK HERO CAROUSEL */}
+      <PuneLandmarkCarousel
+        slides={slides}
+        latestBudgetCrores={summary.totalBudgetBE}
+        latestFY={summary.latestFinancialYear}
+        onNavigate={navigate}
+      />
 
       {/* 2. IMAGE-BASED FEATURE SECTION (3 Rectangular Pune Photographic Cards) */}
       <section className="bg-[#FAF8F3] py-16 lg:py-20 border-b border-[#E5E0D5]">
@@ -227,7 +211,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
                 />
-                {/* Subtle measured overlay for crisp white editorial legibility */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 bg-gradient-to-t from-[#0E2920]/95 via-[#0E2920]/45 to-transparent"
@@ -256,7 +239,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
       {/* 3. DEEP FOREST-GREEN FEATURE SECTION */}
       <section className="bg-[#133429] text-[#FAF8F3] py-16 lg:py-24 relative overflow-hidden">
-        {/* Subtle Maharashtra / Deccan geometric arch motif divider */}
         <div
           aria-hidden="true"
           className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 mb-10 flex items-center gap-4 text-[#FAF8F3]/20"
@@ -278,7 +260,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               Building a More Transparent Pune
             </h2>
             <p className="text-base sm:text-lg text-[#D3DFD9] leading-relaxed">
-              Public finances should be understandable to everyone.
+              Public finances and city infrastructure should be clear, verifiable, and understandable to every citizen.
             </p>
           </div>
 
@@ -323,14 +305,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               Citizen Information Directory
             </span>
             <h2 className="font-serif text-3xl sm:text-[34px] font-semibold text-[#133429] tracking-tight text-balance">
-              Explore Municipal Financial Resources
+              Explore Municipal Finance &amp; Civic Portals
             </h2>
             <p className="text-sm text-[#5A6560] leading-relaxed">
-              Direct access to Pune Municipal Corporation budgets, departmental accounts, ward directories, tenders, and source documentation.
+              Direct access to Pune Municipal Corporation budgets, departmental accounts, all 41 Prabhags, water &amp; sanitation infrastructure, roads, public facilities, and environment indicators.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {onlineResources.map((item) => {
               const Icon = item.icon;
               return (
@@ -338,13 +320,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   key={item.title}
                   type="button"
                   onClick={() => navigate(item.targetPage)}
-                  className="group text-left p-6 rounded-[6px] border border-[#E5E0D5] bg-[#FAF8F3]/60 hover:bg-white hover:border-[#133429]/35 transition-all duration-150 flex items-start gap-4 cursor-pointer"
+                  className="group text-left p-5 rounded-[6px] border border-[#E5E0D5] bg-[#FAF8F3]/60 hover:bg-white hover:border-[#133429]/35 transition-all duration-150 flex items-start gap-4 cursor-pointer"
                 >
                   <div className="w-11 h-11 rounded-[6px] bg-[#E8F2EE] text-[#133429] flex items-center justify-center shrink-0 group-hover:bg-[#133429] group-hover:text-[#FAF8F3] transition-colors duration-150">
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="min-w-0 space-y-1">
-                    <h3 className="font-serif text-[17px] font-semibold text-[#133429] group-hover:text-[#0E7C74] transition-colors">
+                    <h3 className="font-serif text-[16px] font-semibold text-[#133429] group-hover:text-[#0E7C74] transition-colors">
                       {item.title}
                     </h3>
                     <p className="text-xs text-[#5A6560] leading-relaxed">{item.subtitle}</p>
@@ -354,24 +336,33 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             })}
           </div>
 
-          {/* Secondary Civic Portals Bar */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-[#5A6560]">
+          {/* Citizen Action Desk Bar */}
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-5 sm:gap-6 text-xs text-[#5A6560]">
             <button
               type="button"
-              onClick={() => navigate('wards')}
+              onClick={() => navigate('complaints')}
               className="inline-flex items-center gap-1.5 font-semibold text-[#133429] hover:text-[#0E7C74] transition-colors cursor-pointer"
             >
-              <MapPinned className="w-3.5 h-3.5 text-[#0E7C74]" />
-              <span>Explore 15 Regional Ward Offices &amp; 41 Prabhags</span>
+              <MessageSquareWarning className="w-3.5 h-3.5 text-[#0E7C74]" />
+              <span>Civic Complaints Guidance (PMC CARE)</span>
             </button>
             <span aria-hidden="true" className="text-[#E5E0D5]">|</span>
             <button
               type="button"
-              onClick={() => navigate('tenders')}
+              onClick={() => navigate('feedback')}
               className="inline-flex items-center gap-1.5 font-semibold text-[#133429] hover:text-[#0E7C74] transition-colors cursor-pointer"
             >
-              <FileSignature className="w-3.5 h-3.5 text-[#0E7C74]" />
-              <span>View Tenders &amp; MahaTenders Contracts</span>
+              <MessageSquarePlus className="w-3.5 h-3.5 text-[#0E7C74]" />
+              <span>Citizen Feedback &amp; Data Corrections</span>
+            </button>
+            <span aria-hidden="true" className="text-[#E5E0D5]">|</span>
+            <button
+              type="button"
+              onClick={() => navigate('sources')}
+              className="inline-flex items-center gap-1.5 font-semibold text-[#133429] hover:text-[#0E7C74] transition-colors cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#0E7C74]" />
+              <span>Audit &amp; Quarantine Standards</span>
             </button>
           </div>
         </div>
@@ -401,12 +392,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <div className="bg-white p-6 rounded-[6px] border border-[#E5E0D5] space-y-1.5">
-              <span className="text-xs text-[#5A6560] block">FY 2025-26 Proposed Budget (BE)</span>
+              <span className="text-xs text-[#5A6560] block">FY 2026-27 Approved Budget (BE)</span>
               <span className="text-2xl font-bold font-mono tabular-nums text-[#133429] block">
                 ₹{summary.totalBudgetBE.toLocaleString('en-IN')} Cr
               </span>
               <span className="text-[11px] text-[#0E7C74] block">
-                ₹7,093 Cr Revenue · ₹5,524 Cr Capital
+                Standing Committee Final · +24.2% vs FY 25-26 (₹12,618.09 Cr)
               </span>
             </div>
 
@@ -416,17 +407,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 ₹{summary.auditedActualExpenditure.toLocaleString('en-IN')} Cr
               </span>
               <span className="text-[11px] text-[#5A6560] block">
-                85.4% of ₹9,515 Cr BE · Audited Accounts
+                85.4% utilization of ₹9,515 Cr BE · Audited Accounts
               </span>
             </div>
 
             <div className="bg-white p-6 rounded-[6px] border border-[#E5E0D5] space-y-1.5">
-              <span className="text-xs text-[#5A6560] block">FY 2024-25 Property Tax Actual</span>
+              <span className="text-xs text-[#5A6560] block">Property Tax Collections &amp; Target</span>
               <span className="text-2xl font-bold font-mono tabular-nums text-[#133429] block">
                 ₹2,360.00 Cr
               </span>
               <span className="text-[11px] text-[#5A6560] block">
-                FY 2025-26 Budgeted Target: ₹2,847 Cr
+                FY 24-25 Actual · FY 26-27 Target: ₹3,152 Cr
               </span>
             </div>
 

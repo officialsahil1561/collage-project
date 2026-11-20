@@ -15,7 +15,33 @@ import {
   PMC_CIVIC_ASSETS,
   PMC_BUDGET_TRACKER_ROWS
 } from '../src/data/pmcExtendedData';
+import {
+  PMC_PRABHAGS,
+  PMC_WATER_TREATMENT_PLANTS,
+  PMC_SEWAGE_TREATMENT_PLANTS,
+  PMC_ROADS_DEVELOPMENT_ITEMS,
+  PMC_PUBLIC_FACILITY_CATEGORIES,
+  PMC_ENVIRONMENT_INDICATORS,
+  PUNE_LANDMARK_SLIDES,
+  CITIZEN_GLOSSARY_TERMS
+} from '../src/data/pmcCivicSectionsData';
 import { dataProvider } from '../src/services/dataProvider';
+import {
+  COMPLAINT_PHOTO_EXTENSIONS,
+  COMPLAINT_PHOTO_MIME_TYPES,
+  FEEDBACK_DOC_EXTENSIONS,
+  FEEDBACK_DOC_MIME_TYPES,
+  MAX_UPLOAD_BYTES,
+  validateComplaintForm,
+  validateFeedbackForm,
+  validateUploadFile
+} from '../src/utils/citizenFormValidation';
+import {
+  NAV_GROUPS,
+  getBreadcrumbsForPage,
+  getPathForPage,
+  resolvePageFromPathname
+} from '../src/utils/navigation';
 
 interface TestResult {
   name: string;
@@ -36,7 +62,7 @@ function assert(name: string, condition: boolean, details: string) {
 
 console.log('=== JAN DHAN INSIGHTS — PUNE MUNICIPAL CORPORATION (PMC) AUDIT TEST SUITE ===\n');
 
-// 1. Schema Validation Test (35 PMC records)
+// 1. Schema Validation Test (43 PMC records)
 const requiredFields = [
   'unique_id',
   'city',
@@ -73,8 +99,8 @@ for (const rec of ALL_RECONCILED_RECORDS) {
   }
 }
 assert(
-  '1. Schema Validation (38 PMC Records)',
-  allFieldsValid && ALL_RECONCILED_RECORDS.length === 38,
+  '1. Schema Validation (43 PMC Records)',
+  allFieldsValid && ALL_RECONCILED_RECORDS.length === 43,
   `All ${ALL_RECONCILED_RECORDS.length} records possess all required schema fields. ${invalidFieldInfo}`
 );
 
@@ -87,11 +113,11 @@ const overlap = verifiedIDs.filter((id) => reviewIDs.includes(id));
 
 assert(
   '2. Unique IDs & Zero Overlap',
-  uniqueSet.size === 38 &&
+  uniqueSet.size === 43 &&
     overlap.length === 0 &&
-    ALL_VERIFIED_RECORDS.length === 27 &&
-    ALL_REVIEW_RECORDS.length === 11,
-  `38 unique IDs verified (${ALL_VERIFIED_RECORDS.length} active, ${ALL_REVIEW_RECORDS.length} review). Zero overlap.`
+    ALL_VERIFIED_RECORDS.length === 31 &&
+    ALL_REVIEW_RECORDS.length === 12,
+  `43 unique IDs verified (${ALL_VERIFIED_RECORDS.length} active, ${ALL_REVIEW_RECORDS.length} review). Zero overlap.`
 );
 
 // 3. Exclusive PMC Scope (Zero Mumbai, Jaipur, BMC, JMC, or PCMC records)
@@ -120,19 +146,24 @@ const verifiedJsonPath = path.resolve(process.cwd(), 'jandhan_municipal_finance_
 const verifiedCsvPath = path.resolve(process.cwd(), 'jandhan_municipal_finance_verified.csv');
 const reviewJsonPath = path.resolve(process.cwd(), 'jandhan_review_file.json');
 const sourceJsonPath = path.resolve(process.cwd(), 'jandhan_source_registry.json');
+const reportJsonPath = path.resolve(process.cwd(), 'jandhan_reconciliation_report.json');
 
 const verifiedJson = JSON.parse(fs.readFileSync(verifiedJsonPath, 'utf8'));
 const reviewJson = JSON.parse(fs.readFileSync(reviewJsonPath, 'utf8'));
 const sourceJson = JSON.parse(fs.readFileSync(sourceJsonPath, 'utf8'));
+const reportJson = JSON.parse(fs.readFileSync(reportJsonPath, 'utf8'));
 const csvLines = fs.readFileSync(verifiedCsvPath, 'utf8').trim().split('\n');
 
 assert(
-  '4. JSON and CSV Export File Consistency',
+  '4. JSON, CSV & Reconciliation Report Consistency',
   verifiedJson.length === ALL_VERIFIED_RECORDS.length &&
     reviewJson.length === ALL_REVIEW_RECORDS.length &&
     sourceJson.length === MUNICIPAL_SOURCE_REGISTRY.length &&
-    csvLines.length === ALL_VERIFIED_RECORDS.length + 1,
-  `Verified JSON (${verifiedJson.length}), Review JSON (${reviewJson.length}), Sources JSON (${sourceJson.length}), Verified CSV (${csvLines.length - 1} data rows).`
+    csvLines.length === ALL_VERIFIED_RECORDS.length + 1 &&
+    reportJson.summary_metrics?.total_records_audited === 43 &&
+    reportJson.summary_metrics?.active_verified_records === 31 &&
+    reportJson.summary_metrics?.review_quarantined_records === 12,
+  `Verified JSON (${verifiedJson.length}), Review JSON (${reviewJson.length}), Sources JSON (${sourceJson.length}), Verified CSV (${csvLines.length - 1} rows), Report JSON (43 total).`
 );
 
 // 5. Programmatic INR Conversion Test (₹1 Cr = 10,000,000 INR)
@@ -150,7 +181,7 @@ for (const rec of ALL_RECONCILED_RECORDS) {
 assert(
   '5. Currency Normalization (1 Cr = 10⁷ INR)',
   inrMathValid,
-  `All 38 records programmatically match amount_as_printed * 10,000,000 INR. ${inrError}`
+  `All 43 records programmatically match amount_as_printed * 10,000,000 INR. ${inrError}`
 );
 
 // 6. Null versus Zero Policy Test
@@ -183,12 +214,13 @@ assert(
   'All 7 FY 2024-25 PMC departmental sub-heads are quarantined in review and excluded from active aggregates.'
 );
 
-// 8. Subsumed Draft Budget, Subsumed Own-Source Revenue & Stock Metric Isolation
+// 8. Subsumed Draft Budgets (FY 22-23 & FY 26-27), Subsumed Revenue & Stock/Debt Isolation
 const quarantinedIds = [
   'PMC_202223_BE_033',
   'PMC_202324_REC_034',
   'PMC_202324_BAL_035',
-  'PMC_202324_DEBT_036'
+  'PMC_202324_DEBT_036',
+  'PMC_202627_BE_043'
 ];
 const quarantinedIsolated =
   !ALL_VERIFIED_RECORDS.some((r) => quarantinedIds.includes(r.unique_id)) &&
@@ -196,34 +228,51 @@ const quarantinedIsolated =
     ALL_REVIEW_RECORDS.some((r) => r.unique_id === id && !r.aggregation_eligible)
   );
 assert(
-  '8. Subsumed Draft, Subsumed Revenue & Stock/Debt Isolation',
+  '8. Subsumed Drafts (22-23 & 26-27), Subsumed Revenue & Stock/Debt Isolation',
   quarantinedIsolated,
-  'Superseded draft (₹8,592 Cr), subsumed own-source revenue (₹10,632.15 Cr), balance sheet (₹52,698 Cr), and bond debt (₹200 Cr) are isolated from annual flows.'
+  'Superseded drafts (₹8,592 Cr & ₹13,995 Cr), subsumed revenue (₹10,632.15 Cr), balance sheet (₹52,698 Cr), and bond debt (₹200 Cr) are isolated.'
 );
 
-// 9. Key Verified PMC Headline Numbers
+// 9. Key Verified PMC Headline Numbers (FY 2026-27 BE + FY 2025-26 BE + FY 2023-24 Actuals)
+const be2627 = ALL_VERIFIED_RECORDS.find((r) => r.unique_id === 'PMC_202627_BE_039');
 const be2526 = ALL_VERIFIED_RECORDS.find((r) => r.unique_id === 'PMC_202526_BE_001');
 const act2324 = ALL_VERIFIED_RECORDS.find((r) => r.unique_id === 'PMC_202324_ACT_009');
 const pmpmlVgf = ALL_VERIFIED_RECORDS.find((r) => r.unique_id === 'PMC_202526_DEP_018');
 assert(
-  '9. Headline PMC Figures & PCMC Isolation',
-  be2526?.amount_in_crores === 12618.09 &&
+  '9. Headline PMC Figures (FY 2026-27 & Historical)',
+  be2627?.amount_in_crores === 15669.0 &&
+    be2526?.amount_in_crores === 12618.09 &&
     act2324?.amount_in_crores === 8125.6 &&
     pmpmlVgf?.amount_in_crores === 484.96 &&
-    PMC_AUTHORITY_SUMMARY.totalBudgetBE === 12618.09,
-  'FY 2025-26 BE (₹12,618.09 Cr), FY 2023-24 Audited Actuals (₹8,125.60 Cr), and PMC-only PMPML VGF (₹484.96 Cr) verified.'
+    PMC_AUTHORITY_SUMMARY.totalBudgetBE === 15669.0 &&
+    PMC_AUTHORITY_SUMMARY.latestFinancialYear === '2026-27',
+  'FY 2026-27 Final BE (₹15,669 Cr), FY 2025-26 BE (₹12,618.09 Cr), FY 2023-24 Actuals (₹8,125.60 Cr), and PMC-only PMPML VGF verified.'
 );
 
-// 10. Extended PMC Modules Completeness
+// 10. Extended PMC Modules & 5 New Civic Explorer Datasets Completeness
+const prabhagNumbersValid =
+  PMC_PRABHAGS.length === 41 &&
+  new Set(PMC_PRABHAGS.map((p) => p.prabhagNumber)).size === 41;
+const stpTotalMLD = PMC_SEWAGE_TREATMENT_PLANTS.reduce((acc, s) => acc + s.capacityMLD, 0);
+
 assert(
-  '10. Extended PMC Modules Completeness',
+  '10. Extended & New Civic Explorer Datasets Completeness',
   PMC_DEPARTMENTS.length === 20 &&
     PMC_WARD_OFFICES.length === 15 &&
+    prabhagNumbersValid &&
+    PMC_WATER_TREATMENT_PLANTS.length === 6 &&
+    PMC_SEWAGE_TREATMENT_PLANTS.length === 11 &&
+    stpTotalMLD === 396 &&
+    PMC_ROADS_DEVELOPMENT_ITEMS.length === 6 &&
+    PMC_PUBLIC_FACILITY_CATEGORIES.length === 6 &&
+    PMC_ENVIRONMENT_INDICATORS.length === 4 &&
+    PUNE_LANDMARK_SLIDES.length === 12 &&
+    CITIZEN_GLOSSARY_TERMS.length >= 5 &&
     VERIFIED_PROJECTS.length === 8 &&
     PMC_TENDERS.length >= 5 &&
     PMC_CIVIC_ASSETS.length === 12 &&
-    PMC_BUDGET_TRACKER_ROWS.length >= 15,
-  `20 PMC Departments, 15 Ward Offices, 8 Projects, ${PMC_TENDERS.length} Tenders, 12 Civic Asset Sectors, and ${PMC_BUDGET_TRACKER_ROWS.length} Budget Tracker rows verified.`
+    PMC_BUDGET_TRACKER_ROWS.length >= 19,
+  `15 Wards, 41 Prabhags, 6 WTPs, 11 JICA STPs (${stpTotalMLD} MLD), 6 Roads, 6 Facilities, 4 ESR pillars, 12 Landmark Slides, 20 Depts, ${PMC_BUDGET_TRACKER_ROWS.length} Tracker Rows.`
 );
 
 // 11. Search & Filtering Integrity
@@ -240,6 +289,152 @@ assert(
   MUNICIPAL_SOURCE_REGISTRY.length === 6 &&
     MUNICIPAL_SOURCE_REGISTRY.every((s) => s.official_url.startsWith('https://')),
   '6 official PMC/OpenCity/MahaTenders primary sources registered with valid HTTPS URLs.'
+);
+
+// 13. Civic Complaints Form & File Validation
+const emptyComplaintErrors = validateComplaintForm({
+  category: '',
+  title: '',
+  description: '',
+  locality: '',
+  landmark: '',
+  name: '',
+  contactNumber: '',
+  email: ''
+});
+const invalidContactErrors = validateComplaintForm({
+  category: 'Road damage and potholes',
+  title: 'Pothole near Paud Road',
+  description: 'Deep pothole causing traffic bottleneck near bus stop for 2 weeks.',
+  locality: 'Kothrud',
+  landmark: '',
+  name: '',
+  contactNumber: '1234',
+  email: 'not-an-email'
+});
+const validComplaintErrors = validateComplaintForm({
+  category: 'Road damage and potholes',
+  title: 'Pothole near Paud Road',
+  description: 'Deep pothole causing traffic bottleneck near bus stop for 2 weeks.',
+  locality: 'Kothrud',
+  landmark: '',
+  name: '',
+  contactNumber: '',
+  email: ''
+});
+const oversizePhoto = validateUploadFile(
+  { name: 'road.jpg', size: MAX_UPLOAD_BYTES + 1, type: 'image/jpeg' },
+  COMPLAINT_PHOTO_EXTENSIONS,
+  COMPLAINT_PHOTO_MIME_TYPES
+);
+const badPhotoType = validateUploadFile(
+  { name: 'script.exe', size: 1024, type: 'application/x-msdownload' },
+  COMPLAINT_PHOTO_EXTENSIONS,
+  COMPLAINT_PHOTO_MIME_TYPES
+);
+const validPhoto = validateUploadFile(
+  { name: 'pothole.jpg', size: 250000, type: 'image/jpeg' },
+  COMPLAINT_PHOTO_EXTENSIONS,
+  COMPLAINT_PHOTO_MIME_TYPES
+);
+assert(
+  '13. Civic Complaints Form & Photo Upload Validation',
+  Boolean(
+    emptyComplaintErrors.category &&
+      emptyComplaintErrors.title &&
+      emptyComplaintErrors.description &&
+      emptyComplaintErrors.locality
+  ) &&
+    Boolean(invalidContactErrors.contactNumber && invalidContactErrors.email) &&
+    Object.keys(validComplaintErrors).length === 0 &&
+    !oversizePhoto.valid &&
+    !badPhotoType.valid &&
+    validPhoto.valid,
+  'Required fields, optional phone/email checks, and 5 MB JPG/PNG/WEBP photo validation verified.'
+);
+
+// 14. Citizen Feedback Form & Attachment Validation
+const unconfirmedFeedbackErrors = validateFeedbackForm({
+  category: 'Incorrect financial information',
+  name: '',
+  email: '',
+  department: 'Water Supply Department',
+  financialYear: 'FY 2025-26',
+  description: 'Verified allocation line item note needs clarification on table page 12.',
+  confirmedAccurate: false
+});
+const validFeedbackErrors = validateFeedbackForm({
+  category: 'Broken source document link',
+  name: '',
+  email: '',
+  department: '',
+  financialYear: '',
+  description: 'The link to the FY 2023-24 annexure table returns a 404 page on PMC portal.',
+  confirmedAccurate: true
+});
+const validFeedbackPdf = validateUploadFile(
+  { name: 'budget_extract.pdf', size: 512000, type: 'application/pdf' },
+  FEEDBACK_DOC_EXTENSIONS,
+  FEEDBACK_DOC_MIME_TYPES
+);
+assert(
+  '14. Citizen Feedback Form & Attachment Validation',
+  Boolean(unconfirmedFeedbackErrors.confirmedAccurate) &&
+    Object.keys(validFeedbackErrors).length === 0 &&
+    validFeedbackPdf.valid,
+  'Accuracy checkbox, optional contact/department/FY fields, and PDF/image/CSV validation verified.'
+);
+
+// 15. Navigation Groups, Direct URL Routing & Breadcrumbs
+const allNavItems = NAV_GROUPS.flatMap((g) => g.items);
+const routeRoundTripsOk = allNavItems.every(
+  (item) =>
+    resolvePageFromPathname(item.path) === item.key &&
+    getPathForPage(item.key) === item.path &&
+    getBreadcrumbsForPage(item.key).length >= 2
+);
+const aliasesOk =
+  resolvePageFromPathname('/') === 'home' &&
+  resolvePageFromPathname('/overview') === 'finances' &&
+  resolvePageFromPathname('/spending') === 'records' &&
+  resolvePageFromPathname('/wards') === 'wards';
+
+assert(
+  '15. Header Dropdown Grouping, Direct URLs & Breadcrumbs',
+  NAV_GROUPS.length === 4 &&
+    allNavItems.length === 19 &&
+    routeRoundTripsOk &&
+    aliasesOk,
+  `4 dropdown menus covering all ${allNavItems.length} pages, direct URL round-trip routing, aliases, and breadcrumbs verified.`
+);
+
+// 16. 5-Year Expenditure Trends Selector (Dynamic from Verified Records, Zero Fabrication)
+const fiveYearTrends = dataProvider.getFiveYearExpenditureTrends();
+const expectedYears = ['2022-23', '2023-24', '2024-25', '2025-26', '2026-27'];
+const yearsMatch =
+  fiveYearTrends.length === 5 &&
+  fiveYearTrends.every((pt, idx) => pt.financialYear === expectedYears[idx]);
+const amountsMatch =
+  fiveYearTrends[0]?.approvedBudgetBE === 9716.0 &&
+  fiveYearTrends[0]?.auditedRevenueExpenditure === 6682.54 &&
+  fiveYearTrends[0]?.auditedTotalExpenditure === null &&
+  fiveYearTrends[1]?.approvedBudgetBE === 9515.0 &&
+  fiveYearTrends[1]?.auditedTotalExpenditure === 8125.6 &&
+  fiveYearTrends[1]?.auditedRevenueExpenditure === 5910.59 &&
+  fiveYearTrends[1]?.utilizationPct === 85.4 &&
+  fiveYearTrends[2]?.approvedBudgetBE === 11601.0 &&
+  fiveYearTrends[2]?.auditedTotalExpenditure === null &&
+  fiveYearTrends[3]?.approvedBudgetBE === 12618.09 &&
+  fiveYearTrends[3]?.budgetedRevenueExpenditure === 7093.0 &&
+  fiveYearTrends[3]?.budgetedCapitalExpenditure === 5524.0 &&
+  fiveYearTrends[3]?.auditedTotalExpenditure === null &&
+  fiveYearTrends[4]?.approvedBudgetBE === 15669.0 &&
+  fiveYearTrends[4]?.auditedTotalExpenditure === null;
+
+assert(
+  '16. 5-Year Expenditure Trends Selector (FY 22-23 to FY 26-27)',
+  yearsMatch && amountsMatch,
+  '5 financial years derived dynamically from verified records; FY 23-24 actuals (₹8,125.60 Cr / 85.4%) verified; unpublished actuals preserved as null.'
 );
 
 console.log('\n=================================================================');

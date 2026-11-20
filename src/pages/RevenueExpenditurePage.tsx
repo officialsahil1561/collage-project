@@ -2,8 +2,9 @@ import React from 'react';
 import { ReconciledRecord } from '../types';
 import { dataProvider } from '../services/dataProvider';
 import { formatCroresPrecise, formatPrintedWithUnit } from '../utils/formatters';
+import { VerificationBadge } from '../components/VerificationBadge';
+import { toStandardVerificationBadge } from '../data/pmcCivicSectionsData';
 import {
-  CheckCircle2,
   AlertCircle,
   ExternalLink,
   TrendingUp,
@@ -81,7 +82,7 @@ export const RevenueExpenditurePage: React.FC<RevenueExpenditurePageProps> = ({
           <span className="text-2xl font-bold font-mono tabular-nums text-[#0E7C74] block">
             ₹2,360.00 crore
           </span>
-          <span className="text-xs text-[#5A6560] block">FY 25-26 BE Target: ₹2,847.00 Cr</span>
+          <span className="text-xs text-[#5A6560] block">FY 25-26 BE: ₹2,847 Cr · FY 26-27: ₹3,152 Cr</span>
         </div>
 
         <div className="bg-white p-5 rounded-[6px] border border-[#E5E0D5] space-y-1">
@@ -102,7 +103,7 @@ export const RevenueExpenditurePage: React.FC<RevenueExpenditurePageProps> = ({
             <TrendingUp className="w-4 h-4 text-[#0E7C74] shrink-0" />
             <div>
               <h2 className="font-serif text-base font-semibold text-[#133429]">
-                PMC Revenue Streams (Audited Receipts &amp; FY 2025-26 Targets)
+                PMC Revenue Streams (Audited Receipts &amp; FY 2025–27 Targets)
               </h2>
               <p className="text-xs text-[#5A6560]">
                 Strictly distinguishes audited annual actual collections from forward BE targets
@@ -136,13 +137,13 @@ export const RevenueExpenditurePage: React.FC<RevenueExpenditurePageProps> = ({
                 <div className="text-xs text-[#5A6560]">{rec.extraction_note}</div>
               </div>
 
-              <div className="text-left sm:text-right shrink-0">
+              <div className="text-left sm:text-right shrink-0 space-y-1">
                 <div className="text-base font-mono tabular-nums font-bold text-[#133429]">
                   {formatPrintedWithUnit(rec.amount_as_printed, rec.original_unit)}
                 </div>
-                <div className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0E7C74]">
-                  <CheckCircle2 className="w-3 h-3" />
-                  <span>{rec.record_type}</span>
+                <div className="flex items-center sm:justify-end gap-2">
+                  <span className="text-[11px] font-medium text-[#5A6560]">{rec.record_type}</span>
+                  <VerificationBadge status={toStandardVerificationBadge(rec.verification_status)} />
                 </div>
               </div>
             </button>
